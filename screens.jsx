@@ -4,6 +4,35 @@ const { useState: useSc } = React;
 
 const fmt = (n) => new Intl.NumberFormat("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n).replace(/\u00A0/g, " ");
 
+/* ---------- Shared row used in Dashboard / Transactions / Goals ---------- */
+function TxRow({ emoji, title, subtitle, amount, time, positive, isFirst, padding = "12px 14px" }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding, borderTop: isFirst ? "none" : "1px solid var(--border)" }}>
+      <div aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{emoji}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 500 }}>{title}</div>
+        <div className="muted" style={{ fontSize: 11 }}>{subtitle}</div>
+      </div>
+      <div style={time ? { textAlign: "right" } : undefined}>
+        <div className="tabular" style={{ fontWeight: 600, fontSize: 14, color: positive ? "var(--success)" : "var(--text)" }}>{amount} \u20B4</div>
+        {time && <div className="muted tabular" style={{ fontSize: 10 }}>{time}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Empty state helper ---------- */
+function EmptyState({ icon, title, body, cta }) {
+  return (
+    <div style={{ padding: "60px 28px", textAlign: "center" }}>
+      <div aria-hidden="true" style={{ width: 72, height: 72, borderRadius: "var(--r-2xl)", background: "var(--brand-soft)", color: "var(--brand)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 32, marginBottom: 16 }}>{icon}</div>
+      <div className="font-display" style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>{title}</div>
+      <div className="muted" style={{ fontSize: 13, lineHeight: 1.5, maxWidth: 260, margin: "0 auto 16px" }}>{body}</div>
+      {cta && <button type="button" className="btn btn-md btn-primary"><Icons.plus /> {cta}</button>}
+    </div>
+  );
+}
+
 /* ---------- Dashboard ---------- */
 function Dashboard() {
   return (
@@ -14,10 +43,10 @@ function Dashboard() {
           <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>Листопад · 2026</div>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
-          <button className="icon-btn"><Icons.search /></button>
-          <button className="icon-btn" style={{ position: "relative" }}>
+          <button type="button" className="icon-btn" aria-label="Пошук"><Icons.search /></button>
+          <button type="button" className="icon-btn" aria-label="Сповіщення (1 нове)" style={{ position: "relative" }}>
             <Icons.bell />
-            <span style={{ position: "absolute", top: 6, right: 6, width: 8, height: 8, borderRadius: 999, background: "var(--brand)", border: "2px solid var(--surface)" }} />
+            <span aria-hidden="true" style={{ position: "absolute", top: 6, right: 6, width: 8, height: 8, borderRadius: 999, background: "var(--brand)", border: "2px solid var(--surface)" }} />
           </button>
         </div>
       </div>
@@ -78,14 +107,13 @@ function Dashboard() {
           ["💼","ТОВ Альфа","Зарплата","+25 000,00","09:00", true],
           ["📱","Київстар","Звʼязок","−180,00","Вчора"],
         ].map((t, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 8px", borderTop: i ? "1px solid var(--border)" : "none" }}>
-            <div style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{t[0]}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 500 }}>{t[1]}</div>
-              <div className="muted" style={{ fontSize: 11 }}>{t[2]} · {t[4]}</div>
-            </div>
-            <div className="tabular" style={{ fontWeight: 600, fontSize: 14, color: t[6] ? "var(--success)" : "var(--text)" }}>{t[3]} ₴</div>
-          </div>
+          <TxRow
+            key={`${t[0]}-${t[1]}-${t[3]}`}
+            emoji={t[0]} title={t[1]}
+            subtitle={`${t[2]} · ${t[4]}`}
+            amount={t[3]} positive={!!t[5]}
+            isFirst={i === 0} padding="12px 8px"
+          />
         ))}
       </div>
 
@@ -104,19 +132,19 @@ function BottomNav({ active }) {
     { k: "more", L: "Ще", I: Icons.more },
   ];
   return (
-    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "color-mix(in oklch, var(--surface) 80%, transparent)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--border)", padding: "8px 8px 22px", display: "flex", justifyContent: "space-around" }}>
-      {items.map(it => it.k === "fab" ? <div key="fab" style={{ width: 56 }} /> : (
-        <button key={it.k} className="icon-btn" style={{ flexDirection: "column", height: "auto", gap: 2, padding: "6px 8px", color: active === it.k ? "var(--brand)" : "var(--text-subtle)" }}>
+    <nav role="navigation" aria-label="Основна навігація" style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "color-mix(in oklch, var(--surface) 80%, transparent)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--border)", padding: "8px 8px 22px", display: "flex", justifyContent: "space-around" }}>
+      {items.map(it => it.k === "fab" ? <div key="fab" aria-hidden="true" style={{ width: 56 }} /> : (
+        <button key={it.k} type="button" className="icon-btn" aria-label={it.L} aria-current={active === it.k ? "page" : undefined} style={{ flexDirection: "column", height: "auto", gap: 2, padding: "6px 8px", color: active === it.k ? "var(--brand)" : "var(--text-subtle)" }}>
           <it.I />
-          <span style={{ fontSize: 9, fontFamily: "var(--font-mono)" }}>{it.L}</span>
+          <span aria-hidden="true" style={{ fontSize: 9, fontFamily: "var(--font-mono)" }}>{it.L}</span>
         </button>
       ))}
-    </div>
+    </nav>
   );
 }
 function Fab() {
   return (
-    <button style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", width: 56, height: 56, borderRadius: "var(--r-full)", background: "var(--brand)", color: "var(--on-brand)", border: "4px solid var(--bg)", boxShadow: "var(--sh-brand)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+    <button type="button" aria-label="Додати операцію" style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", width: 56, height: 56, borderRadius: "var(--r-full)", background: "var(--brand)", color: "var(--on-brand)", border: "4px solid var(--bg)", boxShadow: "var(--sh-brand)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
       <Icons.plus />
     </button>
   );
@@ -129,17 +157,17 @@ function Transactions() {
       <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 16px 12px", zIndex: 5 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Операції</div>
-          <button className="icon-btn"><Icons.search /></button>
+          <button type="button" className="icon-btn" aria-label="Пошук операцій"><Icons.search /></button>
         </div>
         <div style={{ display: "flex", gap: 6, overflow: "auto", marginBottom: 8 }}>
           <span className="chip active"><Icons.filter /> Листопад</span>
           <span className="chip">Усі рахунки</span>
           <span className="chip">Усі категорії</span>
         </div>
-        <div className="seg" style={{ width: "100%" }}>
-          <div className="seg-item active grow" style={{ textAlign: "center" }}>Усі</div>
-          <div className="seg-item grow" style={{ textAlign: "center" }}>Витрати</div>
-          <div className="seg-item grow" style={{ textAlign: "center" }}>Доходи</div>
+        <div className="seg" role="radiogroup" aria-label="Тип операцій" style={{ width: "100%" }}>
+          <button type="button" role="radio" aria-checked="true" className="seg-item active grow">Усі</button>
+          <button type="button" role="radio" aria-checked="false" className="seg-item grow">Витрати</button>
+          <button type="button" role="radio" aria-checked="false" className="seg-item grow">Доходи</button>
         </div>
       </div>
 
@@ -157,24 +185,20 @@ function Transactions() {
         ["12 листопада","+25 000 ₴", [
           ["💼","ТОВ Альфа","Зарплата","+25 000,00","09:00","Monobank", true],
         ]],
-      ].map(([day, sum, rows], i) => (
-        <div key={i} style={{ marginBottom: 4 }}>
+      ].map(([day, sum, rows]) => (
+        <div key={day} style={{ marginBottom: 4 }}>
           <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px 6px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             <span>{day}</span><span className="tabular">{sum}</span>
           </div>
           <div style={{ background: "var(--surface)", margin: "0 12px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)" }}>
             {rows.map((t, j) => (
-              <div key={j} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: j ? "1px solid var(--border)" : "none" }}>
-                <div style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{t[0]}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500 }}>{t[1]}</div>
-                  <div className="muted" style={{ fontSize: 11 }}>{t[2]} · {t[5]}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div className="tabular" style={{ fontWeight: 600, fontSize: 14, color: t[6] ? "var(--success)" : "var(--text)" }}>{t[3]} ₴</div>
-                  <div className="muted tabular" style={{ fontSize: 10 }}>{t[4]}</div>
-                </div>
-              </div>
+              <TxRow
+                key={`${t[0]}-${t[1]}-${t[3]}`}
+                emoji={t[0]} title={t[1]}
+                subtitle={`${t[2]} · ${t[5]}`}
+                amount={t[3]} time={t[4]} positive={!!t[6]}
+                isFirst={j === 0}
+              />
             ))}
           </div>
         </div>
@@ -207,9 +231,9 @@ function TxSheet() {
           <button className="btn btn-sm btn-soft">Готово</button>
         </div>
 
-        <div className="seg" style={{ width: "100%", marginBottom: 16 }}>
+        <div className="seg" role="radiogroup" aria-label="Тип операції" style={{ width: "100%", marginBottom: 16 }}>
           {[["expense","Витрата"],["income","Дохід"],["transfer","Переказ"]].map(([k,L]) => (
-            <div key={k} className={`seg-item grow ${type === k ? "active" : ""}`} style={{ textAlign: "center" }} onClick={() => setType(k)}>{L}</div>
+            <button key={k} type="button" role="radio" aria-checked={type === k} className={`seg-item grow ${type === k ? "active" : ""}`} onClick={() => setType(k)}>{L}</button>
           ))}
         </div>
 
@@ -239,7 +263,7 @@ function TxSheet() {
             ["Нотатка","Сільпо на Хрещатику"],
             ["Теги","#продукти"],
           ].map((r, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+            <div key={r[0]} style={{ display: "flex", alignItems: "center", padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none" }}>
               <span className="muted" style={{ fontSize: 13, width: 80 }}>{r[0]}</span>
               <span style={{ fontSize: 14, flex: 1 }}>{r[1]}</span>
               <Icons.chevR style={{ color: "var(--text-subtle)" }} />
@@ -282,17 +306,17 @@ function Budgets() {
 
       {/* Period selector */}
       <div style={{ padding: "0 16px 8px" }}>
-        <div className="seg" style={{ width: "100%" }}>
-          <div className="seg-item grow" style={{ textAlign: "center" }}>Тиждень</div>
-          <div className="seg-item active grow" style={{ textAlign: "center" }}>Місяць</div>
-          <div className="seg-item grow" style={{ textAlign: "center" }}>Рік</div>
+        <div className="seg" role="radiogroup" aria-label="Період" style={{ width: "100%" }}>
+          <button type="button" role="radio" aria-checked="false" className="seg-item grow">Тиждень</button>
+          <button type="button" role="radio" aria-checked="true" className="seg-item active grow">Місяць</button>
+          <button type="button" role="radio" aria-checked="false" className="seg-item grow">Рік</button>
         </div>
       </div>
 
       {/* Items */}
       <div style={{ padding: "8px 12px 100px" }}>
-        {items.map((it, i) => (
-          <div key={i} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 14 }}>
+        {items.map((it) => (
+          <div key={it[1]} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ width: 44, height: 44, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{it[0]}</div>
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -347,8 +371,8 @@ function Goals() {
         <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Інші цілі</div>
       </div>
       <div style={{ padding: "0 12px 100px" }}>
-        {[["💻","Новий MacBook",42,"42 000 ₴","100 000 ₴","var(--brand)"],["🚗","Перший внесок на авто",18,"18 000 ₴","100 000 ₴","var(--info)"],["🎓","Курс англійської",100,"12 000 ₴","12 000 ₴","var(--success)"]].map((g, i) => (
-          <div key={i} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 14 }}>
+        {[["💻","Новий MacBook",42,"42 000 ₴","100 000 ₴","var(--brand)"],["🚗","Перший внесок на авто",18,"18 000 ₴","100 000 ₴","var(--info)"],["🎓","Курс англійської",100,"12 000 ₴","12 000 ₴","var(--success)"]].map((g) => (
+          <div key={g[1]} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 14 }}>
             <Ring pct={g[2]} size={56} stroke={5} label={<span style={{ fontSize: 18 }}>{g[0]}</span>} />
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -367,6 +391,62 @@ function Goals() {
   );
 }
 
+/* ---------- Empty-state variants ---------- */
+function TransactionsEmpty() {
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)" }}>
+      <div style={{ padding: "12px 16px 8px" }}>
+        <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Операції</div>
+      </div>
+      <EmptyState
+        icon="🧾"
+        title="Поки що порожньо"
+        body="Додай першу операцію — і ми почнемо рахувати твої витрати, доходи та залишки."
+        cta="Додати операцію"
+      />
+      <BottomNav active="tx" />
+      <Fab />
+    </div>
+  );
+}
+
+function BudgetsEmpty() {
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)" }}>
+      <div style={{ padding: "12px 16px 8px" }}>
+        <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Бюджети</div>
+        <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>Листопад · 30 днів</div>
+      </div>
+      <EmptyState
+        icon="🪙"
+        title="Створи свій перший бюджет"
+        body="Постав ліміт на категорію — Кошик нагадає, коли наближаєшся до межі."
+        cta="Новий бюджет"
+      />
+      <BottomNav active="budget" />
+      <Fab />
+    </div>
+  );
+}
+
+function GoalsEmpty() {
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)" }}>
+      <div style={{ padding: "12px 16px 8px" }}>
+        <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Цілі</div>
+      </div>
+      <EmptyState
+        icon="✨"
+        title="Мрії починаються з цілей"
+        body="Відпустка, новий ноут, перший внесок — обери ціль і відкладай по-трохи щомісяця."
+        cta="Нова ціль"
+      />
+      <BottomNav active="more" />
+      <Fab />
+    </div>
+  );
+}
+
 /* ---------- Wrap into iOS frames + DC ---------- */
 function AppScreens() {
   const screens = [
@@ -375,12 +455,15 @@ function AppScreens() {
     ["txsheet", "Додавання операції", <TxSheet />],
     ["budgets", "Бюджети", <Budgets />],
     ["goals", "Цілі", <Goals />],
+    ["tx-empty", "Операції · empty", <TransactionsEmpty />],
+    ["budgets-empty", "Бюджети · empty", <BudgetsEmpty />],
+    ["goals-empty", "Цілі · empty", <GoalsEmpty />],
   ];
   return (
     <div className="canvas-section">
       <p className="sec-eyebrow">03 — Product</p>
       <h2 className="sec-title">Екрани застосунку</h2>
-      <p className="sec-subtitle">5 ключових екранів у iOS-фреймі: Dashboard, список операцій, sheet додавання, бюджети, цілі. Логіка та копірайт — українські, тапабельність ≥44px, числа моноширинно.</p>
+      <p className="sec-subtitle">5 ключових екранів у iOS-фреймі плюс 3 empty-state варіанти для онбордингу. Логіка та копірайт — українські, тапабельність ≥44px, числа моноширинно.</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 32, justifyContent: "flex-start" }}>
         {screens.map(([k, title, content]) => (
           <div key={k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
