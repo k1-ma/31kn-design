@@ -792,6 +792,377 @@ function ExportSheet() {
   );
 }
 
+/* ---------- Statistics / Analytics ---------- */
+function Stats() {
+  const [period, setPeriod] = useSc("month");
+
+  // Mock series per period — 7 days / 12 months / 5 years
+  const series = {
+    week:  { labels: ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"],
+             income: [0,0,25000,0,0,0,1200], expense: [480,520,810,1200,640,1900,720] },
+    month: { labels: ["1","5","10","15","20","25","30"],
+             income: [0,0,0,25000,0,8000,0], expense: [2400,3100,4200,4800,2900,5600,3800] },
+    year:  { labels: ["Січ","Бер","Тра","Лип","Вер","Лис","Гру"],
+             income: [22000,24000,23500,26000,25500,33000,28000],
+             expense: [18400,17800,19500,21200,18900,20800,19400] },
+  };
+  const totals = {
+    week:  { in: "26 200", out: "6 270",  delta: "+19 930", deltaUp: true,  prev: "+12 480", prevDelta: "+60%" },
+    month: { in: "33 000", out: "20 800", delta: "+12 200", deltaUp: true,  prev: "+7 100",  prevDelta: "+72%" },
+    year:  { in: "182 000",out: "138 800",delta: "+43 200", deltaUp: true,  prev: "+28 600", prevDelta: "+51%" },
+  };
+  const cur = series[period];
+  const tot = totals[period];
+  const max = Math.max(...cur.income, ...cur.expense, 1);
+
+  // Donut segments (category breakdown). Total must be 100.
+  const cats = [
+    ["Їжа",         32, "var(--brand)"],
+    ["Транспорт",   18, "var(--info)"],
+    ["Розваги",     14, "var(--warning)"],
+    ["Дім",         12, "var(--success)"],
+    ["Кафе",         9, "oklch(0.62 0.16 25)"],
+    ["Інше",        15, "var(--text-subtle)"],
+  ];
+  const donutSize = 168, donutStroke = 22;
+  const r = (donutSize - donutStroke) / 2;
+  const C = 2 * Math.PI * r;
+  let acc = 0;
+
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)", paddingBottom: 100 }}>
+      {/* Header */}
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 16px 12px", zIndex: 5 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Аналітика</div>
+          <button type="button" className="icon-btn" aria-label="Поділитись"><Icons.arrow /></button>
+        </div>
+        <div className="seg" role="radiogroup" aria-label="Період" style={{ width: "100%" }}>
+          {[["week","Тиждень"],["month","Місяць"],["year","Рік"]].map(([k,L]) => (
+            <button key={k} type="button" role="radio" aria-checked={period === k} className={`seg-item grow ${period === k ? "active" : ""}`} onClick={() => setPeriod(k)}>{L}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary card */}
+      <div style={{ margin: "12px 16px", padding: 18, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <div className="muted" style={{ fontSize: 12 }}>Чистий потік</div>
+        <div className="font-display tabular" style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em", color: tot.deltaUp ? "var(--success)" : "var(--danger)", marginTop: 4 }}>{tot.delta} ₴</div>
+        <div className="muted tabular" style={{ fontSize: 11, marginTop: 2 }}>попередній період: {tot.prev} ₴ · {tot.prevDelta}</div>
+        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+          <div style={{ flex: 1, padding: "10px 12px", borderRadius: "var(--r-md)", background: "var(--success-soft)" }}>
+            <div className="muted tiny">Доходи</div>
+            <div className="tabular" style={{ fontWeight: 600, fontSize: 15, color: "var(--success)", marginTop: 2 }}>+{tot.in} ₴</div>
+          </div>
+          <div style={{ flex: 1, padding: "10px 12px", borderRadius: "var(--r-md)", background: "var(--surface-2)" }}>
+            <div className="muted tiny">Витрати</div>
+            <div className="tabular" style={{ fontWeight: 600, fontSize: 15, marginTop: 2 }}>−{tot.out} ₴</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bars chart */}
+      <div style={{ margin: "0 16px 16px", padding: 16, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+          <div className="font-display" style={{ fontWeight: 600, fontSize: 14 }}>Кешфлоу</div>
+          <div style={{ display: "flex", gap: 12, fontSize: 11 }}>
+            <span className="muted" style={{ display: "flex", alignItems: "center", gap: 4 }}><span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 2, background: "var(--success)" }} />Дохід</span>
+            <span className="muted" style={{ display: "flex", alignItems: "center", gap: 4 }}><span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 2, background: "var(--brand)" }} />Витрата</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", height: 140, gap: 4 }}>
+          {cur.labels.map((l, i) => {
+            const ih = (cur.income[i] / max) * 100;
+            const eh = (cur.expense[i] / max) * 100;
+            return (
+              <div key={l} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, height: "100%" }}>
+                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 2 }}>
+                  <div style={{ width: "44%", height: `${ih}%`, background: "var(--success)", borderRadius: "var(--r-sm) var(--r-sm) 0 0", minHeight: ih > 0 ? 2 : 0, transition: "height 320ms" }} />
+                  <div style={{ width: "44%", height: `${eh}%`, background: "var(--brand)", borderRadius: "var(--r-sm) var(--r-sm) 0 0", minHeight: eh > 0 ? 2 : 0, transition: "height 320ms" }} />
+                </div>
+                <div className="muted tabular" style={{ fontSize: 10 }}>{l}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Category donut */}
+      <div style={{ margin: "0 16px 16px", padding: 18, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <div className="font-display" style={{ fontWeight: 600, fontSize: 14, marginBottom: 12 }}>За категоріями</div>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <div style={{ width: donutSize, height: donutSize, position: "relative", flexShrink: 0 }}>
+            <svg width={donutSize} height={donutSize} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+              <circle cx={donutSize/2} cy={donutSize/2} r={r} fill="none" stroke="var(--surface-3)" strokeWidth={donutStroke} />
+              {cats.map(([n, p, c]) => {
+                const seg = (p / 100) * C;
+                const dash = `${seg} ${C - seg}`;
+                const offset = -acc;
+                acc += seg;
+                return (
+                  <circle key={n} cx={donutSize/2} cy={donutSize/2} r={r} fill="none" stroke={c} strokeWidth={donutStroke} strokeDasharray={dash} strokeDashoffset={offset} />
+                );
+              })}
+            </svg>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div className="muted tiny">Витрати</div>
+              <div className="font-display tabular" style={{ fontSize: 18, fontWeight: 700 }}>{tot.out}</div>
+              <div className="muted tabular" style={{ fontSize: 10 }}>₴</div>
+            </div>
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+            {cats.map(([n, p, c]) => (
+              <div key={n} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 999, background: c, flexShrink: 0 }} />
+                <span style={{ fontSize: 12, flex: 1 }}>{n}</span>
+                <span className="tabular muted" style={{ fontSize: 11 }}>{p}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Top merchants */}
+      <div style={{ margin: "0 16px 16px", padding: 16, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <div className="font-display" style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Топ-витрати</div>
+        <div className="muted" style={{ fontSize: 11, marginBottom: 12 }}>{period === "year" ? "за рік" : period === "month" ? "за місяць" : "за тиждень"}</div>
+        {[
+          ["🛒","Сільпо",    4280, 100],
+          ["🚗","Bolt",      1840,  43],
+          ["☕","Aroma Kava",  920,  21],
+          ["⛽","WOG",         640,  15],
+        ].map(([emoji, name, amt, w]) => (
+          <div key={name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <span aria-hidden="true" style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{emoji}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>{name}</span>
+                <span className="tabular" style={{ fontSize: 13, fontWeight: 600 }}>−{amt.toLocaleString("uk-UA").replace(/,/g," ")} ₴</span>
+              </div>
+              <div style={{ height: 4, borderRadius: 999, background: "var(--surface-3)", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${w}%`, background: "var(--brand)", borderRadius: 999, transition: "width 340ms" }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <BottomNav active="more" />
+    </div>
+  );
+}
+
+/* ---------- Settings / Profile ---------- */
+function Settings() {
+  const sections = [
+    {
+      label: "Акаунт",
+      rows: [
+        ["Рахунки",  "4 рахунки · 3 валюти", "🏦", "var(--brand)"],
+        ["Категорії","12 категорій",          "🏷️", "var(--info)"],
+        ["Тарифи",   "Безкоштовно назавжди",  "💎", "var(--success)"],
+      ],
+    },
+    {
+      label: "Налаштування",
+      rows: [
+        ["Сповіщення", "Бюджет 80% · Великі витрати", "🔔", "var(--warning)"],
+        ["Безпека",    "Face ID · 4-значний PIN",     "🛡️", "var(--text)"],
+        ["Зовнішній вигляд","Світла · indigo · regular","🎨", "var(--brand)"],
+        ["Мова",       "Українська · UA",              "🌐", "var(--info)"],
+        ["Базова валюта","UAH · ₴",                    "💱", "var(--success)"],
+      ],
+    },
+    {
+      label: "Дані",
+      rows: [
+        ["Виписка",        "PDF · CSV · JSON",          "📄", "var(--text)"],
+        ["Резервна копія", "iCloud · автоматично",      "☁️", "var(--info)"],
+        ["Імпорт",         "З Monobank, Privat, CSV",   "⬇️", "var(--success)"],
+      ],
+    },
+    {
+      label: "Підтримка",
+      rows: [
+        ["Допомога",       "FAQ · Чат",       "❓", "var(--text)"],
+        ["Зв'язок з нами", "feedback@koshyk.app","✉️", "var(--text)"],
+        ["Про застосунок", "v2.0.4 · 2026",   "ℹ️", "var(--text-subtle)"],
+      ],
+    },
+  ];
+
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)", paddingBottom: 100 }}>
+      {/* Header */}
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 16px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Налаштування</div>
+        <button type="button" className="icon-btn" aria-label="Закрити"><Icons.x /></button>
+      </div>
+
+      {/* Profile card */}
+      <div style={{ margin: "8px 16px 16px", padding: 18, borderRadius: "var(--r-2xl)", background: "linear-gradient(135deg, var(--brand-soft) 0%, var(--surface) 100%)", border: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 14 }}>
+        <div aria-hidden="true" style={{ width: 64, height: 64, borderRadius: "var(--r-full)", background: "linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, boxShadow: "var(--sh-2)" }}>А</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="font-display" style={{ fontSize: 17, fontWeight: 600 }}>Анна Іваненко</div>
+          <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>anna@koshyk.app</div>
+          <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
+            <span className="badge brand">Pro · довічно</span>
+            <span className="badge success"><Icons.check /> Підтверджено</span>
+          </div>
+        </div>
+        <button type="button" className="icon-btn" aria-label="Редагувати профіль"><Icons.chevR /></button>
+      </div>
+
+      {/* Sections */}
+      {sections.map((s) => (
+        <div key={s.label} style={{ marginBottom: 16 }}>
+          <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</div>
+          <div style={{ background: "var(--surface)", margin: "0 12px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+            {s.rows.map(([title, sub, emoji, fg], i) => (
+              <button key={title} type="button" style={{ appearance: "none", background: "transparent", border: "none", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: i ? "1px solid var(--border)" : "none", cursor: "pointer", color: "inherit" }}>
+                <span aria-hidden="true" style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "var(--surface-2)", color: fg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{emoji}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{title}</div>
+                  <div className="muted" style={{ fontSize: 11 }}>{sub}</div>
+                </div>
+                <Icons.chevR style={{ color: "var(--text-subtle)", flexShrink: 0 }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Danger / logout */}
+      <div style={{ padding: "0 12px 16px" }}>
+        <button type="button" className="btn btn-md btn-secondary" style={{ width: "100%", color: "var(--danger)" }}>Вийти з акаунту</button>
+      </div>
+      <div style={{ textAlign: "center", color: "var(--text-subtle)", fontSize: 11, fontFamily: "var(--font-mono)", padding: "8px 16px 24px" }}>
+        Koshyk · v2.0.4 · made in Ukraine ♥
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Operation success ---------- */
+function OpSuccess() {
+  return (
+    <div style={{ position: "relative", height: "100%", overflow: "hidden", background: "var(--bg)" }}>
+      {/* festive radial backdrop */}
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 50% 35%, var(--success-soft), transparent 60%)", pointerEvents: "none" }} />
+      {/* dotted confetti */}
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {[
+          [12,18,"var(--brand)"],[78,22,"var(--success)"],[34,30,"var(--warning)"],
+          [88,40,"var(--brand)"],[22,46,"var(--info)"],[68,52,"var(--success)"],
+          [44,12,"var(--brand)"],[14,62,"var(--warning)"],[82,68,"var(--info)"],
+        ].map(([x,y,c], i) => (
+          <span key={i} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, width: 6, height: 6, borderRadius: 999, background: c, opacity: 0.7 }} />
+        ))}
+      </div>
+
+      <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "60px 28px 28px", textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button type="button" className="icon-btn" aria-label="Закрити"><Icons.x /></button>
+          <span className="muted" style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>14:32 · сьогодні</span>
+        </div>
+
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <div aria-hidden="true" style={{ width: 100, height: 100, borderRadius: "var(--r-full)", background: "var(--success)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 12px 32px oklch(0.62 0.16 155 / 0.4)", marginBottom: 24 }}>
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <h1 className="font-display" style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 8px" }}>Готово!</h1>
+          <p className="muted" style={{ fontSize: 14, lineHeight: 1.5, maxWidth: 280, margin: 0 }}>Операцію збережено в Кошику. Бюджет «Їжа» оновлено.</p>
+
+          <div style={{ marginTop: 32, padding: 16, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-2xl)", boxShadow: "var(--sh-2)", width: "100%", maxWidth: 320, display: "flex", alignItems: "center", gap: 12 }}>
+            <span aria-hidden="true" style={{ width: 44, height: 44, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>🍔</span>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Сільпо</div>
+              <div className="muted" style={{ fontSize: 11 }}>Їжа · Monobank</div>
+            </div>
+            <div className="tabular" style={{ fontWeight: 700, fontSize: 16 }}>−280,00 ₴</div>
+          </div>
+        </div>
+
+        <div>
+          <button type="button" className="btn btn-xl btn-primary">До дашборду</button>
+          <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%", marginTop: 8 }}>Додати ще одну</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Operation error ---------- */
+function OpError() {
+  return (
+    <div style={{ height: "100%", overflow: "hidden", background: "var(--bg)" }}>
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "60px 28px 28px", textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button type="button" className="icon-btn" aria-label="Закрити"><Icons.x /></button>
+          <span className="muted" style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>код 503 · 14:32</span>
+        </div>
+
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <div aria-hidden="true" style={{ width: 100, height: 100, borderRadius: "var(--r-full)", background: "var(--danger-soft)", color: "var(--danger)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24, position: "relative" }}>
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <h1 className="font-display" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 8px" }}>Не вдалося зберегти</h1>
+          <p className="muted" style={{ fontSize: 14, lineHeight: 1.5, maxWidth: 300, margin: 0 }}>Сервер тимчасово недоступний. Операцію збережено локально — синхронізуємо, щойно з'явиться зв'язок.</p>
+
+          <div style={{ marginTop: 24, padding: "12px 14px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", width: "100%", maxWidth: 320, display: "flex", alignItems: "center", gap: 10, textAlign: "left" }}>
+            <span aria-hidden="true" style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "var(--warning-soft)", color: "var(--warning)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>⏳</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>1 операція в черзі</div>
+              <div className="muted" style={{ fontSize: 11 }}>Сільпо · −280,00 ₴ · чекає синхронізації</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <button type="button" className="btn btn-xl btn-primary">Спробувати ще раз</button>
+          <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%", marginTop: 8 }}>Працювати офлайн</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Confirm delete (destructive bottom sheet) ---------- */
+function ConfirmDelete() {
+  return (
+    <Sheet
+      behind={<Transactions />}
+      title={null}
+    >
+      <div style={{ textAlign: "center", padding: "8px 4px 0" }}>
+        <div aria-hidden="true" style={{ width: 64, height: 64, borderRadius: "var(--r-full)", background: "var(--danger-soft)", color: "var(--danger)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+          <Icons.trash />
+        </div>
+        <h2 className="font-display" style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 8px" }}>Видалити операцію?</h2>
+        <p className="muted" style={{ fontSize: 13, lineHeight: 1.5, maxWidth: 280, margin: "0 auto 16px" }}>«Сільпо · −280,00 ₴» · 14:32. Дію не можна скасувати — операція зникне з історії та з бюджету «Їжа».</p>
+
+        <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12, textAlign: "left" }}>
+          <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>🍔</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 500 }}>Сільпо</div>
+            <div className="muted" style={{ fontSize: 11 }}>Їжа · Monobank · 14:32</div>
+          </div>
+          <div className="tabular" style={{ fontWeight: 600, fontSize: 14 }}>−280,00 ₴</div>
+        </div>
+
+        <button type="button" className="btn btn-xl btn-danger">Видалити</button>
+        <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%", marginTop: 8 }}>Скасувати</button>
+      </div>
+    </Sheet>
+  );
+}
+
 /* ---------- Wrap into iOS frames + DC ---------- */
 function AppScreens() {
   const screens = [
@@ -801,6 +1172,11 @@ function AppScreens() {
     ["txsheet", "Додавання операції", <TxSheet />],
     ["budgets", "Бюджети", <Budgets />],
     ["goals", "Цілі", <Goals />],
+    ["stats", "Аналітика · графіки", <Stats />],
+    ["settings", "Налаштування · профіль", <Settings />],
+    ["op-success", "Підтвердження · успіх", <OpSuccess />],
+    ["op-error", "Підтвердження · помилка", <OpError />],
+    ["confirm-delete", "Підтвердження · видалення", <ConfirmDelete />],
     ["wallet-picker", "Pickers · гаманець", <WalletPicker />],
     ["currency-picker", "Pickers · валюта", <CurrencyPicker />],
     ["date-picker", "Pickers · дата", <DatePicker />],
