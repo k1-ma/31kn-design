@@ -269,6 +269,30 @@ function HighlightSilpo({ text }) {
   );
 }
 
+/* ---------- Reusable bottom sheet wrapper ---------- */
+function Sheet({ behind, title, leading, trailing, children, footer }) {
+  return (
+    <div style={{ position: "relative", height: "100%", overflow: "hidden" }}>
+      {behind && (
+        <div style={{ position: "absolute", inset: 0, opacity: 0.4, pointerEvents: "none" }}>{behind}</div>
+      )}
+      <div style={{ position: "absolute", inset: 0, background: "color-mix(in oklch, black 50%, transparent)", pointerEvents: "none" }} />
+      <div role="dialog" aria-modal="true" aria-label={title} style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "92%", overflowY: "auto", background: "var(--surface)", borderRadius: "var(--r-3xl) var(--r-3xl) 0 0", padding: "10px 20px 32px", boxShadow: "var(--sh-5)" }}>
+        <div aria-hidden="true" style={{ width: 40, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 16px" }} />
+        {(leading || title || trailing) && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ minWidth: 70 }}>{leading}</div>
+            <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>{title}</div>
+            <div style={{ minWidth: 70, textAlign: "right" }}>{trailing}</div>
+          </div>
+        )}
+        {children}
+        {footer && <div style={{ marginTop: 20 }}>{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Add Transaction sheet ---------- */
 function TxSheet() {
   const [type, setType] = useSc("expense");
@@ -508,6 +532,266 @@ function GoalsEmpty() {
   );
 }
 
+/* ---------- Currency picker ---------- */
+function CurrencyPicker() {
+  const rates = [
+    ["UAH","Українська гривня","₴", null, true],
+    ["USD","Долар США","$","41,28"],
+    ["EUR","Євро","€","43,56"],
+    ["PLN","Польський злотий","zł","10,12"],
+    ["GBP","Британський фунт","£","52,01"],
+    ["CHF","Швейцарський франк","CHF","46,18"],
+    ["GEL","Грузинський ларі","₾","15,22"],
+    ["CZK","Чеська крона","Kč","1,79"],
+  ];
+  return (
+    <Sheet
+      behind={<TxSheet />}
+      title="Валюта"
+      leading={<button type="button" className="btn btn-sm btn-ghost">Скасувати</button>}
+      trailing={<button type="button" className="btn btn-sm btn-soft">Готово</button>}
+    >
+      <div style={{ position: "relative", marginBottom: 12 }}>
+        <span aria-hidden="true" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-subtle)", display: "flex" }}><Icons.search /></span>
+        <input className="input" type="search" placeholder="Знайти валюту" aria-label="Пошук валюти" style={{ paddingLeft: 36 }} />
+      </div>
+      <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "4px 4px 8px" }}>Курс НБУ · 14.11</div>
+      <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", overflow: "hidden" }}>
+        {rates.map((c, i) => (
+          <button key={c[0]} type="button" role="radio" aria-checked={!!c[4]} style={{ appearance: "none", background: c[4] ? "var(--brand-soft)" : "transparent", border: "none", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none", cursor: "pointer", color: "inherit" }}>
+            <span style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: c[4] ? "var(--brand)" : "var(--surface)", color: c[4] ? "var(--on-brand)" : "var(--text)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontFamily: "var(--font-mono)" }}>{c[2]}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 8 }}>{c[0]} <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>· {c[1]}</span></div>
+              {c[3] && <div className="muted tabular" style={{ fontSize: 11 }}>1 {c[0]} = {c[3]} ₴</div>}
+              {c[4] && <div className="tabular" style={{ fontSize: 11, color: "var(--brand)" }}>За замовчуванням</div>}
+            </div>
+            {c[4] && <Icons.check style={{ color: "var(--brand)" }} />}
+          </button>
+        ))}
+      </div>
+    </Sheet>
+  );
+}
+
+/* ---------- Wallet picker ---------- */
+function WalletPicker() {
+  const wallets = [
+    ["💳","Monobank","UAH","32 480,50","var(--brand)", true],
+    ["🏦","Privat","UAH","8 100,00","var(--info)"],
+    ["💵","Готівка","UAH","2 000,00","var(--success)"],
+    ["💸","Wise","EUR","420,18","var(--warning)"],
+  ];
+  return (
+    <Sheet
+      behind={<Dashboard />}
+      title="Гаманець"
+      leading={<button type="button" className="btn btn-sm btn-ghost">Скасувати</button>}
+      trailing={<button type="button" className="btn btn-sm btn-soft">Готово</button>}
+    >
+      <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", overflow: "hidden" }}>
+        {wallets.map((w, i) => (
+          <button key={w[1]} type="button" role="radio" aria-checked={!!w[5]} style={{ appearance: "none", background: w[5] ? "var(--brand-soft)" : "transparent", border: "none", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none", cursor: "pointer", color: "inherit" }}>
+            <span aria-hidden="true" style={{ width: 40, height: 40, borderRadius: "var(--r-md)", background: w[4], color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{w[0]}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{w[1]} <span className="muted" style={{ fontWeight: 400 }}>· {w[2]}</span></div>
+              <div className="muted tabular" style={{ fontSize: 11 }}>{w[3]} {w[2] === "EUR" ? "€" : "₴"}</div>
+            </div>
+            {w[5] && <Icons.check style={{ color: "var(--brand)" }} />}
+          </button>
+        ))}
+      </div>
+      <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%", marginTop: 12 }}><Icons.plus /> Додати рахунок</button>
+    </Sheet>
+  );
+}
+
+/* ---------- Date picker ---------- */
+function DatePicker() {
+  const week = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
+  const days = Array.from({ length: 35 }, (_, i) => i - 5);
+  return (
+    <Sheet
+      behind={<TxSheet />}
+      title="Дата"
+      leading={<button type="button" className="btn btn-sm btn-ghost">Скасувати</button>}
+      trailing={<button type="button" className="btn btn-sm btn-soft">Готово</button>}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px 12px" }}>
+        <button type="button" className="icon-btn" aria-label="Попередній місяць" style={{ transform: "rotate(180deg)" }}><Icons.chevR /></button>
+        <span className="font-display" style={{ fontWeight: 600 }}>Листопад 2026</span>
+        <button type="button" className="icon-btn" aria-label="Наступний місяць"><Icons.chevR /></button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+        {week.map(d => <div key={d} className="muted" style={{ textAlign: "center", fontSize: 11, fontFamily: "var(--font-mono)", padding: "4px 0" }}>{d}</div>)}
+        {days.map((d) => {
+          const inMonth = d > 0 && d <= 30;
+          const isSelected = d === 14;
+          const isToday = d === 14;
+          return (
+            <button key={`d${d}`} type="button" disabled={!inMonth} aria-pressed={isSelected} style={{ aspectRatio: "1", appearance: "none", background: isSelected ? "var(--brand)" : isToday ? "var(--brand-soft)" : "transparent", color: isSelected ? "var(--on-brand)" : !inMonth ? "var(--text-subtle)" : "var(--text)", border: "none", borderRadius: "var(--r-md)", fontSize: 14, fontWeight: isToday ? 600 : 400, cursor: inMonth ? "pointer" : "default", opacity: !inMonth ? 0.35 : 1, fontFamily: "var(--font-mono)" }}>
+              {inMonth ? d : d <= 0 ? 31 + d : d - 30}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 16, padding: "12px 14px", background: "var(--surface-2)", borderRadius: "var(--r-lg)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="muted" style={{ fontSize: 12, fontFamily: "var(--font-mono)" }}>ЧАС</span>
+        <span className="tabular" style={{ flex: 1, fontWeight: 600 }}>14:32</span>
+        <button type="button" className="btn btn-sm btn-ghost">Зараз</button>
+      </div>
+    </Sheet>
+  );
+}
+
+/* ---------- Notifications ---------- */
+function Notifications() {
+  const groups = [
+    ["Сьогодні", [
+      ["⚠️", "Бюджет «Розваги» — 92%", "Залишилось 160 ₴ до кінця місяця.", "14:02", "warning", true],
+      ["🎯", "Ціль «Відпустка» — +2 000 ₴", "Поповнено вручну. До цілі 16 000 ₴.", "09:14", "brand", true],
+    ]],
+    ["Вчора", [
+      ["💼", "Зарплата надійшла", "+25 000 ₴ на Monobank · UAH.", "09:00", "success"],
+      ["🔁", "Київстар · автосписання", "−180 ₴ за тарифний план.", "18:30", "info"],
+    ]],
+    ["Цього тижня", [
+      ["🎉", "100% цілі «Курс англійської»", "Ціль закрита! Цього вистачить на 4 місяці курсу.", "Пн", "success"],
+      ["🛡️", "Підозріла операція", "−4 200 ₴ у новому місці. Підтверди, якщо це ти.", "Нд", "danger"],
+    ]],
+  ];
+  const tones = {
+    warning: ["var(--warning-soft)", "var(--warning)"],
+    brand:   ["var(--brand-soft)", "var(--brand)"],
+    success: ["var(--success-soft)", "var(--success)"],
+    info:    ["var(--surface-2)", "var(--info)"],
+    danger:  ["var(--danger-soft)", "var(--danger)"],
+  };
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)" }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 16px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>Сповіщення</div>
+        <button type="button" className="btn btn-sm btn-ghost">Прочитати всі</button>
+      </div>
+      {groups.map(([day, rows]) => (
+        <div key={day}>
+          <div className="muted" style={{ fontFamily: "var(--font-mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", padding: "12px 16px 6px" }}>{day}</div>
+          <div style={{ background: "var(--surface)", margin: "0 12px 8px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)" }}>
+            {rows.map((n, j) => {
+              const [bg, fg] = tones[n[4]] ?? tones.info;
+              return (
+                <div key={n[1]} style={{ display: "flex", gap: 12, padding: "14px 14px", borderTop: j ? "1px solid var(--border)" : "none", alignItems: "flex-start", position: "relative" }}>
+                  <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: bg, color: fg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{n[0]}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>{n[1]}</span>
+                      <span className="muted tabular" style={{ fontSize: 11, flexShrink: 0 }}>{n[3]}</span>
+                    </div>
+                    <div className="muted" style={{ fontSize: 12, marginTop: 2, lineHeight: 1.4 }}>{n[2]}</div>
+                  </div>
+                  {n[5] && <span aria-label="Не прочитано" style={{ position: "absolute", top: 18, right: 6, width: 8, height: 8, borderRadius: 999, background: "var(--brand)" }} />}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+      <div style={{ height: 40 }} />
+    </div>
+  );
+}
+
+/* ---------- Onboarding (4 steps shown side-by-side) ---------- */
+function OnboardingStep({ step, total, icon, title, body, primary, secondary, accent = "var(--brand)" }) {
+  return (
+    <div style={{ height: "100%", background: "var(--bg)", display: "flex", flexDirection: "column", padding: "60px 28px 28px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+        <div className="muted" style={{ fontSize: 12, fontFamily: "var(--font-mono)" }}>{step}/{total}</div>
+        <button type="button" className="btn btn-sm btn-ghost">Пропустити</button>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+        <div aria-hidden="true" style={{ width: 120, height: 120, borderRadius: "var(--r-3xl)", background: `linear-gradient(135deg, ${accent} 0%, var(--brand-deep) 100%)`, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56, marginBottom: 32, boxShadow: "var(--sh-brand)" }}>{icon}</div>
+        <h1 className="font-display" style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 12px", lineHeight: 1.1 }}>{title}</h1>
+        <p className="muted" style={{ fontSize: 15, lineHeight: 1.5, maxWidth: 280, margin: 0 }}>{body}</p>
+      </div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 24 }} aria-hidden="true">
+        {Array.from({ length: total }).map((_, i) => (
+          <span key={i} style={{ width: i + 1 === step ? 24 : 6, height: 6, borderRadius: 999, background: i + 1 === step ? "var(--brand)" : "var(--border-strong)", transition: "width 220ms" }} />
+        ))}
+      </div>
+      <button type="button" className="btn btn-xl btn-primary">{primary}</button>
+      {secondary && <button type="button" className="btn btn-md btn-ghost" style={{ marginTop: 8 }}>{secondary}</button>}
+    </div>
+  );
+}
+
+const OnboardingWelcome = () => <OnboardingStep step={1} total={4} icon="👋" title="Привіт! Я — Кошик." body="Допомагаю стежити за грошима без надмірних дій. 30 секунд — і поїхали." primary="Почати" secondary="Уже маю акаунт" />;
+const OnboardingAccounts = () => <OnboardingStep step={2} total={4} icon="🏦" title="Підключи рахунки" body="Monobank, Privat, готівка, картки в інших валютах. Все живе в одному списку." primary="Додати рахунок" secondary="Пропустити" />;
+const OnboardingBudgets = () => <OnboardingStep step={3} total={4} icon="🎯" title="Постав бюджети" body="Виберемо ліміти на категорії — їжа, транспорт, кафе. Ми попередимо на 80%." primary="Налаштувати" secondary="Пізніше" />;
+const OnboardingDone = () => <OnboardingStep step={4} total={4} icon="✨" title="Все готово!" body="Перша операція — і Кошик почне рахувати твій кешфлоу. Удачі!" primary="До дашборду" accent="var(--success)" />;
+
+/* ---------- Export / Statement ---------- */
+function ExportSheet() {
+  return (
+    <Sheet
+      behind={<Transactions />}
+      title="Виписка"
+      leading={<button type="button" className="btn btn-sm btn-ghost">Скасувати</button>}
+    >
+      <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "4px 4px 8px" }}>Період</div>
+      <div className="seg" role="radiogroup" aria-label="Період" style={{ width: "100%", marginBottom: 12 }}>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">7 днів</button>
+        <button type="button" role="radio" aria-checked="true" className="seg-item active grow">Місяць</button>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">Квартал</button>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">Свій</button>
+      </div>
+
+      <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "12px 4px 8px" }}>Формат</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+        {[
+          ["pdf", "PDF", "📄", "Для друку", true],
+          ["csv", "CSV", "📊", "Для Excel"],
+          ["json", "JSON", "🧩", "Для гіків"],
+        ].map(f => (
+          <button key={f[0]} type="button" role="radio" aria-checked={!!f[4]} style={{ appearance: "none", padding: 14, borderRadius: "var(--r-lg)", background: f[4] ? "var(--brand-soft)" : "var(--surface-2)", border: f[4] ? "1px solid var(--brand)" : "1px solid var(--border)", cursor: "pointer", textAlign: "center", color: "inherit", font: "inherit" }}>
+            <div style={{ fontSize: 24, marginBottom: 4 }}>{f[2]}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: f[4] ? "var(--brand)" : "var(--text)" }}>{f[1]}</div>
+            <div className="muted" style={{ fontSize: 10, marginTop: 2 }}>{f[3]}</div>
+          </button>
+        ))}
+      </div>
+
+      <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "12px 4px 8px" }}>Що включити</div>
+      <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", overflow: "hidden", marginBottom: 16 }}>
+        {[
+          ["Усі рахунки","4 рахунки", true],
+          ["Усі категорії","12 категорій", true],
+          ["Тільки витрати","Без доходів", false],
+          ["З нотатками й тегами","", true],
+        ].map((row, i) => (
+          <div key={row[0]} style={{ display: "flex", alignItems: "center", padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none", gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{row[0]}</div>
+              {row[1] && <div className="muted" style={{ fontSize: 11 }}>{row[1]}</div>}
+            </div>
+            <div className={`sw ${row[2] ? "on" : ""}`} role="switch" aria-checked={row[2]} aria-label={row[0]}><div className="thumb" /></div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 14px", background: "var(--brand-soft)", borderRadius: "var(--r-lg)", marginBottom: 16 }}>
+        <span aria-hidden="true" style={{ fontSize: 22 }}>📎</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "var(--brand)" }}>koshyk_2026-11.pdf</div>
+          <div className="muted tabular" style={{ fontSize: 11 }}>~ 38 операцій · 124 КБ</div>
+        </div>
+      </div>
+
+      <button type="button" className="btn btn-xl btn-primary">Завантажити виписку</button>
+      <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%", marginTop: 8 }}>Поділитись посиланням</button>
+    </Sheet>
+  );
+}
+
 /* ---------- Wrap into iOS frames + DC ---------- */
 function AppScreens() {
   const screens = [
@@ -517,6 +801,15 @@ function AppScreens() {
     ["txsheet", "Додавання операції", <TxSheet />],
     ["budgets", "Бюджети", <Budgets />],
     ["goals", "Цілі", <Goals />],
+    ["wallet-picker", "Pickers · гаманець", <WalletPicker />],
+    ["currency-picker", "Pickers · валюта", <CurrencyPicker />],
+    ["date-picker", "Pickers · дата", <DatePicker />],
+    ["notifications", "Сповіщення", <Notifications />],
+    ["export", "Виписка / експорт", <ExportSheet />],
+    ["onb-1", "Онбординг · 1", <OnboardingWelcome />],
+    ["onb-2", "Онбординг · 2", <OnboardingAccounts />],
+    ["onb-3", "Онбординг · 3", <OnboardingBudgets />],
+    ["onb-4", "Онбординг · 4", <OnboardingDone />],
     ["tx-empty", "Операції · empty", <TransactionsEmpty />],
     ["budgets-empty", "Бюджети · empty", <BudgetsEmpty />],
     ["goals-empty", "Цілі · empty", <GoalsEmpty />],

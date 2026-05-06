@@ -241,15 +241,83 @@ function LandingMobile() {
   );
 }
 
+function LandingTablet() {
+  return (
+    <div style={{ width: 768, background: "var(--bg)", borderRadius: 22, overflow: "hidden", border: "1px solid var(--border)" }}>
+      {/* Top bar — collapsed nav */}
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "color-mix(in oklch, var(--bg) 80%, transparent)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--border)" }}>
+        <div style={{ padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--brand)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontFamily: "var(--font-display)", fontWeight: 700 }}>К</div>
+            <span className="font-display" style={{ fontWeight: 700, fontSize: 18 }}>Koshyk</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button type="button" className="btn btn-sm btn-outline">Увійти</button>
+            <button type="button" className="btn btn-sm btn-primary">Спробувати</button>
+            <button type="button" className="icon-btn" aria-label="Меню"><Icons.more /></button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero — single column at this width */}
+      <section style={{ position: "relative", padding: "48px 24px 40px", overflow: "hidden", textAlign: "center" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at top, var(--brand-soft), transparent 60%)", opacity: 0.7, pointerEvents: "none" }} />
+        <div style={{ position: "relative" }}>
+          <span className="badge brand" style={{ height: 24, padding: "0 10px" }}>v2 · оновлено</span>
+          <h1 className="font-display" style={{ fontSize: 52, fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.03em", margin: "16px auto 16px", maxWidth: 640 }}>Твої гроші,<br/><span style={{ color: "var(--brand)" }}>під контролем.</span></h1>
+          <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.55, maxWidth: 480, margin: "0 auto 24px" }}>Простий облік доходів, витрат і бюджетів. Працює офлайн. Без реклами.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 32 }}>
+            <button type="button" className="btn btn-lg btn-primary">Почати безкоштовно <Icons.arrow /></button>
+            <button type="button" className="btn btn-lg btn-outline">Дивитися демо</button>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <PhoneMockHero />
+          </div>
+        </div>
+      </section>
+
+      {/* Features — 2-column grid */}
+      <section style={{ padding: "48px 24px", borderTop: "1px solid var(--border)" }}>
+        <p className="sec-eyebrow" style={{ textAlign: "center" }}>Можливості</p>
+        <h2 className="font-display" style={{ fontSize: 32, fontWeight: 700, textAlign: "center", letterSpacing: "-0.02em", margin: "8px 0 32px" }}>Усе, що треба.</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          {[
+            { t: "Бюджети, які попереджають", b: "Сповіщення на 80% і 100%. Перенос залишків.", emoji: "💰" },
+            { t: "Цілі з прогресом", b: "Кільцевий прогрес, дедлайн, конфеті на 100%.", emoji: "🎯" },
+            { t: "Аналітика, що читається", b: "Категорії, тренди, cashflow.", emoji: "📊" },
+            { t: "Мульти-валюта", b: "UAH, USD, EUR, PLN. Автокурс НБУ.", emoji: "🌍" },
+          ].map((f) => (
+            <div key={f.t} style={{ padding: 20, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>{f.emoji}</div>
+              <h3 className="font-display" style={{ fontSize: 18, fontWeight: 600, margin: "0 0 6px" }}>{f.t}</h3>
+              <p className="muted" style={{ fontSize: 13, lineHeight: 1.5, margin: 0 }}>{f.b}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section style={{ padding: "0 24px 48px" }}>
+        <div style={{ padding: "40px 32px", borderRadius: "var(--r-3xl)", background: "linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%)", color: "white", textAlign: "center", boxShadow: "var(--sh-brand)" }}>
+          <h2 className="font-display" style={{ fontSize: 32, fontWeight: 700, margin: "0 0 8px" }}>Почни сьогодні.</h2>
+          <p style={{ opacity: 0.85, fontSize: 14, margin: "0 0 20px" }}>30 секунд на реєстрацію.</p>
+          <button type="button" className="btn btn-lg" style={{ background: "white", color: "var(--brand)" }}>Почати безкоштовно <Icons.arrow /></button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function Landing() {
   return (
     <div className="canvas-section">
       <p className="sec-eyebrow">02 — Marketing</p>
-      <h2 className="sec-title">Лендінг (мобайл + десктоп)</h2>
-      <p className="sec-subtitle">Sticky topbar з blur, hero з gradient + grid pattern, alternating feature rows, comparison таблиця (без брендових імен — додати самостійно), final CTA блок з gradient. Анімації — fadeUp на in-view, magnetic hover на CTA, gentle rotate на phone mock.</p>
-      <div style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <LandingDesktop />
+      <h2 className="sec-title">Лендінг (мобайл + планшет + десктоп)</h2>
+      <p className="sec-subtitle">Три брейкпоінти: 390 (mobile), 768 (tablet) і 1200 (desktop). Sticky topbar з blur, hero з gradient + grid pattern, alternating feature rows на десктопі, 2-колонна сітка на планшеті, single-column на мобайлі. Final CTA — gradient. Анімації — fadeUp на in-view, magnetic hover на CTA.</p>
+      <div style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap", justifyContent: "flex-start" }}>
         <LandingMobile />
+        <LandingTablet />
+        <LandingDesktop />
       </div>
     </div>
   );

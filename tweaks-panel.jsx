@@ -154,6 +154,38 @@ const __TWEAKS_STYLE = `
   .twk-chip>span>i:first-child{box-shadow:none}
   .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
     filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+
+  /* Custom dropdown — replaces native <select> */
+  .twk-dd{position:relative;width:100%}
+  .twk-dd-btn{appearance:none;width:100%;height:26px;display:flex;align-items:center;
+    justify-content:space-between;gap:6px;padding:0 8px;border-radius:7px;
+    border:.5px solid rgba(0,0,0,.1);background:rgba(255,255,255,.6);
+    color:inherit;font:inherit;cursor:default;outline:none;text-align:left}
+  .twk-dd-btn:hover{background:rgba(255,255,255,.85)}
+  .twk-dd-btn[aria-expanded="true"]{background:rgba(255,255,255,.92);
+    border-color:rgba(0,0,0,.25)}
+  .twk-dd-btn>span:first-child{flex:1;min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .twk-dd-btn svg{flex-shrink:0;transition:transform .15s}
+  .twk-dd-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+  .twk-dd-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;
+    margin:0;padding:4px;list-style:none;
+    background:rgba(250,249,247,.96);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    backdrop-filter:blur(20px) saturate(160%);
+    border:.5px solid rgba(0,0,0,.12);border-radius:8px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 8px 24px rgba(0,0,0,.2);
+    z-index:2147483647;outline:none;max-height:240px;overflow-y:auto;
+    animation:twk-dd-in 120ms cubic-bezier(.3,.7,.4,1)}
+  @keyframes twk-dd-in{from{opacity:0;transform:translateY(-4px) scale(.98)}
+    to{opacity:1;transform:none}}
+  .twk-dd-menu li{margin:0;padding:0}
+  .twk-dd-item{appearance:none;width:100%;display:flex;align-items:center;
+    justify-content:space-between;gap:8px;padding:6px 8px;border:0;border-radius:5px;
+    background:transparent;color:inherit;font:inherit;text-align:left;cursor:default}
+  .twk-dd-item.active{background:rgba(0,0,0,.06)}
+  .twk-dd-item[aria-selected="true"]{font-weight:600}
+  .twk-dd-tick{color:rgba(41,38,27,.65);font-size:11px;line-height:1}
 `;
 
 // ── useTweaks ───────────────────────────────────────────────────────────────
@@ -429,15 +461,96 @@ function TweakRadio({ label, value, options, onChange }) {
 }
 
 function TweakSelect({ label, value, options, onChange }) {
+  // Custom dropdown — designed to match the rest of the panel rather than
+  // inheriting the OS-native <select> chrome. Closes on outside-click and on
+  // Escape; ArrowUp/Down/Home/End navigate; Enter/Space commit.
+  const norm = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const [open, setOpen] = React.useState(false);
+  const [activeIdx, setActiveIdx] = React.useState(0);
+  const btnRef = React.useRef(null);
+  const menuRef = React.useRef(null);
+  const cur = norm.find((o) => o.value === value) ?? norm[0];
+
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => {
+      const t = e.target;
+      if (!btnRef.current?.contains(t) && !menuRef.current?.contains(t)) setOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { setOpen(false); btnRef.current?.focus(); }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const commit = (i) => {
+    onChange(norm[i].value);
+    setOpen(false);
+    btnRef.current?.focus();
+  };
+
+  const onMenuKey = (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx((i) => Math.min(norm.length - 1, i + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIdx((i) => Math.max(0, i - 1)); }
+    else if (e.key === 'Home') { e.preventDefault(); setActiveIdx(0); }
+    else if (e.key === 'End') { e.preventDefault(); setActiveIdx(norm.length - 1); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); commit(activeIdx); }
+  };
+
+  const openWith = (startIdx) => {
+    setActiveIdx(Math.max(0, startIdx));
+    setOpen(true);
+    // focus the menu after it mounts so ArrowKeys land
+    queueMicrotask(() => menuRef.current?.focus());
+  };
+
+  // ArrowDown opens the menu without going through the click path; Enter and
+  // Space already fire onClick natively on a <button>, so we don't intercept
+  // them here.
+  const onBtnKey = (e) => {
+    if (e.key === 'ArrowDown' && !open) {
+      e.preventDefault();
+      openWith(norm.findIndex((o) => o.value === value));
+    }
+  };
+
   return (
     <TweakRow label={label}>
-      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
-        {options.map((o) => {
-          const v = typeof o === 'object' ? o.value : o;
-          const l = typeof o === 'object' ? o.label : o;
-          return <option key={v} value={v}>{l}</option>;
-        })}
-      </select>
+      <div className="twk-dd">
+        <button
+          ref={btnRef} type="button" className="twk-dd-btn"
+          aria-haspopup="listbox" aria-expanded={open}
+          onClick={() => (open ? setOpen(false) : openWith(norm.findIndex((o) => o.value === value)))}
+          onKeyDown={onBtnKey}
+        >
+          <span>{cur.label}</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
+            <path d="M0 0h10L5 6z" fill="currentColor" opacity=".55" />
+          </svg>
+        </button>
+        {open && (
+          <ul ref={menuRef} className="twk-dd-menu" role="listbox" tabIndex={-1} onKeyDown={onMenuKey}>
+            {norm.map((o, i) => (
+              <li key={o.value}>
+                <button
+                  type="button" role="option" aria-selected={o.value === value}
+                  className={`twk-dd-item ${i === activeIdx ? 'active' : ''}`}
+                  onClick={() => commit(i)}
+                  onMouseEnter={() => setActiveIdx(i)}
+                >
+                  <span>{o.label}</span>
+                  {o.value === value && <span className="twk-dd-tick" aria-hidden="true">✓</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </TweakRow>
   );
 }
