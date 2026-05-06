@@ -191,12 +191,15 @@ function TxSheet() {
   const [type, setType] = useSc("expense");
   const [cat, setCat] = useSc("food");
   return (
-    <div style={{ height: "100%", background: "color-mix(in oklch, black 50%, transparent)", display: "flex", alignItems: "flex-end" }}>
+    <div style={{ position: "relative", height: "100%", overflow: "hidden" }}>
       {/* dim header glimpse */}
-      <div style={{ position: "absolute", inset: 0, padding: 16, opacity: 0.4 }}>
+      <div style={{ position: "absolute", inset: 0, opacity: 0.4, pointerEvents: "none" }}>
         <Dashboard />
       </div>
-      <div style={{ position: "relative", width: "100%", background: "var(--surface)", borderRadius: "var(--r-3xl) var(--r-3xl) 0 0", padding: "10px 20px 40px", boxShadow: "var(--sh-5)", maxHeight: "92%", overflow: "auto" }}>
+      {/* dim layer over the dashboard */}
+      <div style={{ position: "absolute", inset: 0, background: "color-mix(in oklch, black 50%, transparent)", pointerEvents: "none" }} />
+      {/* sheet pinned to the bottom */}
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "92%", overflowY: "auto", background: "var(--surface)", borderRadius: "var(--r-3xl) var(--r-3xl) 0 0", padding: "10px 20px 40px", boxShadow: "var(--sh-5)" }}>
         <div style={{ width: 40, height: 4, borderRadius: 4, background: "var(--border-strong)", margin: "0 auto 16px" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <button className="btn btn-sm btn-ghost">Скасувати</button>
