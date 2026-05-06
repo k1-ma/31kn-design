@@ -113,8 +113,9 @@
 
   /* Segmented control */
   .seg { display: inline-flex; padding: 4px; background: var(--surface-2); border-radius: var(--r-md); }
-  .seg-item { padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-radius: var(--r-sm); cursor: pointer; transition: all var(--t-fast); }
+  .seg-item { appearance: none; background: transparent; border: none; font: inherit; text-align: center; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-radius: var(--r-sm); cursor: pointer; transition: all var(--t-fast); }
   .seg-item.active { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
+  .seg-item:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--brand-ring); }
 
   /* Card */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-2xl); box-shadow: var(--sh-1); }

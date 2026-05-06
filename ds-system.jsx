@@ -258,9 +258,9 @@ function DSToggles() {
       </div>
       <div className="play" style={{ marginTop: 8 }}>
         <span className="muted tiny">Segmented:</span>
-        <div className="seg">
+        <div className="seg" role="radiogroup" aria-label="Тип операції">
           {["expense","income","transfer"].map(k => (
-            <div key={k} className={`seg-item ${seg === k ? "active" : ""}`} onClick={() => setSeg(k)}>{k === "expense" ? "Витрата" : k === "income" ? "Дохід" : "Переказ"}</div>
+            <button key={k} type="button" role="radio" aria-checked={seg === k} className={`seg-item ${seg === k ? "active" : ""}`} onClick={() => setSeg(k)}>{k === "expense" ? "Витрата" : k === "income" ? "Дохід" : "Переказ"}</button>
           ))}
         </div>
       </div>
@@ -330,10 +330,10 @@ function DSSheet() {
         <div className="sheet-mock">
           <div className="sheet-handle" />
           <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Нова транзакція</div>
-          <div className="seg" style={{ width: "100%", marginBottom: 12 }}>
-            <div className="seg-item active grow" style={{ textAlign: "center" }}>Витрата</div>
-            <div className="seg-item grow" style={{ textAlign: "center" }}>Дохід</div>
-            <div className="seg-item grow" style={{ textAlign: "center" }}>Переказ</div>
+          <div className="seg" role="radiogroup" aria-label="Тип операції" style={{ width: "100%", marginBottom: 12 }}>
+            <button type="button" role="radio" aria-checked="true" className="seg-item active grow">Витрата</button>
+            <button type="button" role="radio" aria-checked="false" className="seg-item grow">Дохід</button>
+            <button type="button" role="radio" aria-checked="false" className="seg-item grow">Переказ</button>
           </div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 36, fontWeight: 600, textAlign: "center", padding: "12px 0" }}>−280,00 <span className="muted" style={{ fontSize: 16 }}>₴</span></div>
         </div>
