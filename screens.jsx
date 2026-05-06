@@ -52,7 +52,7 @@ function Dashboard() {
       </div>
 
       {/* Hero balance card */}
-      <div style={{ margin: "8px 16px 16px", padding: "20px", borderRadius: "var(--r-2xl)", background: "linear-gradient(135deg, var(--brand) 0%, oklch(0.45 0.16 290) 100%)", color: "white", boxShadow: "var(--sh-brand)", position: "relative", overflow: "hidden" }}>
+      <div style={{ margin: "8px 16px 16px", padding: "20px", borderRadius: "var(--r-2xl)", background: "linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%)", color: "white", boxShadow: "var(--sh-brand)", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2), transparent 50%)" }} />
         <div style={{ fontSize: 12, opacity: 0.85, position: "relative" }}>Чисті активи</div>
         <div className="font-display tabular" style={{ fontSize: 38, fontWeight: 700, letterSpacing: "-0.02em", margin: "4px 0 6px", position: "relative" }}>42 580,50 <span style={{ fontSize: 18, opacity: 0.7, fontWeight: 500 }}>₴</span></div>
@@ -210,6 +210,65 @@ function Transactions() {
   );
 }
 
+/* ---------- Transactions — search-active variant ---------- */
+function TransactionsSearch() {
+  const matches = [
+    ["🍔","Сільпо","Продукти","−480,50","14:32","Monobank"],
+    ["🛒","Сільпо","Продукти","−1 240,00","Вчора","Monobank"],
+    ["🥐","Сільпо · кафе","Кафе","−215,00","11 лист","Privat"],
+  ];
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)" }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 12px 12px", zIndex: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <span aria-hidden="true" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-subtle)", display: "flex" }}><Icons.search /></span>
+            <input className="input" type="search" defaultValue="Сільпо" aria-label="Пошук операцій" style={{ paddingLeft: 36, paddingRight: 36 }} />
+            <button type="button" aria-label="Очистити" style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", width: 24, height: 24, borderRadius: 999, background: "var(--surface-3)", color: "var(--text-muted)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icons.x /></button>
+          </div>
+          <button type="button" className="btn btn-sm btn-ghost">Скасувати</button>
+        </div>
+        <div style={{ display: "flex", gap: 6, overflow: "auto", marginTop: 10 }}>
+          <span className="chip active"><Icons.filter /> Сільпо</span>
+          <span className="chip">Продукти</span>
+          <span className="chip">Усі рахунки</span>
+          <span className="chip">Листопад</span>
+        </div>
+      </div>
+
+      <div style={{ padding: "12px 16px 6px", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", justifyContent: "space-between" }}>
+        <span>3 збіги · Листопад</span>
+        <span className="tabular">−1 935,50 ₴</span>
+      </div>
+      <div style={{ background: "var(--surface)", margin: "0 12px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)" }}>
+        {matches.map((t, j) => (
+          <TxRow
+            key={`${t[0]}-${t[1]}-${t[3]}`}
+            emoji={t[0]} title={<HighlightSilpo text={t[1]} />}
+            subtitle={`${t[2]} · ${t[5]}`}
+            amount={t[3]} time={t[4]}
+            isFirst={j === 0}
+          />
+        ))}
+      </div>
+      <div style={{ height: 100 }} />
+      <BottomNav active="tx" />
+    </div>
+  );
+}
+
+function HighlightSilpo({ text }) {
+  const idx = text.toLowerCase().indexOf("сільпо");
+  if (idx < 0) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark style={{ background: "var(--brand-soft)", color: "var(--brand)", borderRadius: 3, padding: "0 2px" }}>{text.slice(idx, idx + 6)}</mark>
+      {text.slice(idx + 6)}
+    </>
+  );
+}
+
 /* ---------- Add Transaction sheet ---------- */
 function TxSheet() {
   const [type, setType] = useSc("expense");
@@ -260,18 +319,20 @@ function TxSheet() {
           {[
             ["Гаманець","💳 Monobank · UAH"],
             ["Дата","Сьогодні, 14:32"],
+            ["Валюта","UAH · ₴"],
+            ["Повторення","Не повторюється"],
             ["Нотатка","Сільпо на Хрещатику"],
             ["Теги","#продукти"],
           ].map((r, i) => (
-            <div key={r[0]} style={{ display: "flex", alignItems: "center", padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none" }}>
-              <span className="muted" style={{ fontSize: 13, width: 80 }}>{r[0]}</span>
+            <button type="button" key={r[0]} aria-label={`${r[0]}: ${r[1]}`} style={{ appearance: "none", background: "transparent", border: "none", textAlign: "left", width: "100%", display: "flex", alignItems: "center", padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none", cursor: "pointer", color: "inherit" }}>
+              <span className="muted" style={{ fontSize: 13, width: 90 }}>{r[0]}</span>
               <span style={{ fontSize: 14, flex: 1 }}>{r[1]}</span>
               <Icons.chevR style={{ color: "var(--text-subtle)" }} />
-            </div>
+            </button>
           ))}
         </div>
 
-        <button className="btn btn-xl btn-primary" style={{ marginTop: 20 }}>Зберегти</button>
+        <button type="button" className="btn btn-xl btn-primary" style={{ marginTop: 20 }}>Зберегти</button>
       </div>
     </div>
   );
@@ -354,7 +415,7 @@ function Goals() {
       </div>
 
       {/* Featured goal */}
-      <div style={{ margin: "12px 16px", padding: 24, borderRadius: "var(--r-2xl)", background: "linear-gradient(135deg, var(--brand-soft) 0%, oklch(0.94 0.04 290) 100%)", border: "1px solid var(--border)", textAlign: "center" }}>
+      <div style={{ margin: "12px 16px", padding: 24, borderRadius: "var(--r-2xl)", background: "linear-gradient(135deg, var(--brand-soft) 0%, var(--brand-soft-2) 100%)", border: "1px solid var(--border)", textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>✈️</div>
         <div className="font-display" style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Відпустка в Грузії</div>
         <Ring pct={68} size={140} stroke={11} label={<><span className="tabular" style={{ fontSize: 24, fontWeight: 700 }}>68%</span></>} />
@@ -452,6 +513,7 @@ function AppScreens() {
   const screens = [
     ["dashboard", "Огляд", <Dashboard />],
     ["transactions", "Операції (списком)", <Transactions />],
+    ["tx-search", "Операції · пошук", <TransactionsSearch />],
     ["txsheet", "Додавання операції", <TxSheet />],
     ["budgets", "Бюджети", <Budgets />],
     ["goals", "Цілі", <Goals />],

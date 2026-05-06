@@ -1,11 +1,14 @@
 /* Koshyk Design Tokens v2 — "Calm Fintech" */
 :root {
-  /* Brand — indigo (replaces emerald) */
-  --brand: oklch(0.58 0.16 280);
-  --brand-hover: oklch(0.52 0.17 280);
-  --brand-press: oklch(0.46 0.17 280);
-  --brand-soft: oklch(0.96 0.03 280);
-  --brand-ring: oklch(0.58 0.16 280 / 0.35);
+  /* Brand — driven by --brand-hue (defaults to indigo 280) */
+  --brand-hue: 280;
+  --brand: oklch(0.58 0.16 var(--brand-hue));
+  --brand-hover: oklch(0.52 0.17 var(--brand-hue));
+  --brand-press: oklch(0.46 0.17 var(--brand-hue));
+  --brand-soft: oklch(0.96 0.03 var(--brand-hue));
+  --brand-deep: oklch(0.45 0.16 var(--brand-hue));
+  --brand-soft-2: oklch(0.94 0.04 var(--brand-hue));
+  --brand-ring: oklch(0.58 0.16 var(--brand-hue) / 0.35);
   --on-brand: #ffffff;
 
   /* Surfaces — warm off-white in light */
@@ -30,14 +33,18 @@
   --danger-soft: oklch(0.96 0.04 25);
   --info: oklch(0.62 0.13 240);
 
-  /* Radii */
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 22px;
-  --r-2xl: 28px;
-  --r-3xl: 36px;
+  /* Radii — scaled by --r-scale (compact 0.75, normal 1, round 1.4) */
+  --r-scale: 1;
+  --r-sm: calc(8px  * var(--r-scale));
+  --r-md: calc(12px * var(--r-scale));
+  --r-lg: calc(16px * var(--r-scale));
+  --r-xl: calc(22px * var(--r-scale));
+  --r-2xl: calc(28px * var(--r-scale));
+  --r-3xl: calc(36px * var(--r-scale));
   --r-full: 9999px;
+
+  /* Density — multiplier for paddings/gaps used by component classes */
+  --density: 1;
 
   /* Shadows */
   --sh-1: 0 1px 2px rgba(20, 20, 40, 0.04), 0 1px 1px rgba(20, 20, 40, 0.03);
@@ -45,7 +52,7 @@
   --sh-3: 0 6px 18px rgba(20, 20, 40, 0.07), 0 2px 6px rgba(20, 20, 40, 0.05);
   --sh-4: 0 14px 36px rgba(20, 20, 40, 0.10), 0 4px 12px rgba(20, 20, 40, 0.06);
   --sh-5: 0 28px 60px rgba(20, 20, 40, 0.16), 0 8px 24px rgba(20, 20, 40, 0.08);
-  --sh-brand: 0 12px 32px oklch(0.58 0.16 280 / 0.32);
+  --sh-brand: 0 12px 32px oklch(0.58 0.16 var(--brand-hue) / 0.32);
 
   /* Motion */
   --t-fast: 120ms;
@@ -60,7 +67,7 @@
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-.dark {
+[data-theme="dark"], .dark {
   --bg: oklch(0.16 0.018 260);
   --surface: oklch(0.205 0.02 260);
   --surface-2: oklch(0.235 0.022 260);
@@ -72,10 +79,12 @@
   --text-muted: oklch(0.74 0.012 260);
   --text-subtle: oklch(0.6 0.012 260);
 
-  --brand: oklch(0.7 0.16 280);
-  --brand-hover: oklch(0.76 0.16 280);
-  --brand-soft: oklch(0.32 0.08 280);
-  --brand-ring: oklch(0.7 0.16 280 / 0.4);
+  --brand: oklch(0.7 0.16 var(--brand-hue));
+  --brand-hover: oklch(0.76 0.16 var(--brand-hue));
+  --brand-soft: oklch(0.32 0.08 var(--brand-hue));
+  --brand-deep: oklch(0.55 0.18 var(--brand-hue));
+  --brand-soft-2: oklch(0.36 0.1 var(--brand-hue));
+  --brand-ring: oklch(0.7 0.16 var(--brand-hue) / 0.4);
 
   --success: oklch(0.74 0.16 155);
   --warning: oklch(0.82 0.16 75);
@@ -86,7 +95,7 @@
   --sh-3: 0 8px 22px rgba(0,0,0,0.5);
   --sh-4: 0 18px 40px rgba(0,0,0,0.55);
   --sh-5: 0 30px 70px rgba(0,0,0,0.6);
-  --sh-brand: 0 14px 36px oklch(0.7 0.16 280 / 0.4);
+  --sh-brand: 0 14px 36px oklch(0.7 0.16 var(--brand-hue) / 0.4);
 }
 
 * { box-sizing: border-box; }

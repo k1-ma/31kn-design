@@ -116,7 +116,7 @@ function LandingDesktop() {
 
       {/* Final CTA */}
       <section style={{ padding: "80px 32px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "64px 48px", borderRadius: "var(--r-3xl)", background: "linear-gradient(135deg, var(--brand) 0%, oklch(0.45 0.16 290) 100%)", color: "white", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: "var(--sh-brand)" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "64px 48px", borderRadius: "var(--r-3xl)", background: "linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%)", color: "white", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: "var(--sh-brand)" }}>
           <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 40%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1), transparent 40%)" }} />
           <h2 className="font-display" style={{ fontSize: 52, fontWeight: 700, letterSpacing: "-0.025em", margin: 0, lineHeight: 1.05, position: "relative" }}>Почни сьогодні.</h2>
           <p style={{ marginTop: 12, fontSize: 17, opacity: 0.85, position: "relative" }}>30 секунд на реєстрацію — твої фінанси у твоїх руках.</p>
@@ -230,7 +230,7 @@ function LandingMobile() {
           </div>
         </div>
         <div style={{ padding: "0 20px 32px" }}>
-          <div style={{ padding: 32, borderRadius: "var(--r-3xl)", background: "linear-gradient(135deg, var(--brand) 0%, oklch(0.45 0.16 290) 100%)", color: "white", textAlign: "center" }}>
+          <div style={{ padding: 32, borderRadius: "var(--r-3xl)", background: "linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%)", color: "white", textAlign: "center" }}>
             <div className="font-display" style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Почни сьогодні</div>
             <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 16 }}>30 секунд на реєстрацію</div>
             <button className="btn btn-md" style={{ background: "white", color: "var(--brand)", width: "100%" }}>Спробувати</button>
