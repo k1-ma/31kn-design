@@ -1163,16 +1163,645 @@ function ConfirmDelete() {
   );
 }
 
+/* ---------- Transaction detail (deep-link target) ---------- */
+function TxDetail() {
+  const splitTotal = 4200;
+  const peers = [
+    ["А", "Анна (ти)",     1400, "var(--brand)", true],
+    ["О", "Олег",          1400, "var(--info)"],
+    ["М", "Марія",         1400, "var(--success)"],
+  ];
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)", paddingBottom: 20 }}>
+      {/* Header w/ back from notifications */}
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 8px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="icon-btn" aria-label="Назад до сповіщень" style={{ transform: "rotate(180deg)" }}><Icons.chevR /></button>
+        <span className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)" }}>Зі сповіщення · 12 лист</span>
+        <button type="button" className="icon-btn" aria-label="Більше"><Icons.more /></button>
+      </div>
+
+      {/* Hero amount */}
+      <div style={{ textAlign: "center", padding: "20px 16px 24px" }}>
+        <div aria-hidden="true" style={{ width: 72, height: 72, borderRadius: "var(--r-2xl)", background: "var(--danger-soft)", color: "var(--danger)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 34, marginBottom: 12, position: "relative" }}>
+          🛡️
+          <span aria-hidden="true" style={{ position: "absolute", top: -4, right: -4, width: 22, height: 22, borderRadius: 999, background: "var(--danger)", color: "white", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bg)" }}>!</span>
+        </div>
+        <div className="font-display tabular" style={{ fontSize: 42, fontWeight: 700, letterSpacing: "-0.03em" }}>−4 200,00 <span className="muted" style={{ fontSize: 22, fontWeight: 500 }}>₴</span></div>
+        <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>≈ 101,75 €</div>
+        <div style={{ display: "inline-flex", marginTop: 10, padding: "4px 10px", borderRadius: 999, background: "var(--danger-soft)", color: "var(--danger)", fontSize: 11, fontWeight: 600 }}>
+          ⚠ Підозріла операція
+        </div>
+      </div>
+
+      {/* Meta */}
+      <div style={{ margin: "0 16px 16px", padding: "4px 0", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-2xl)" }}>
+        {[
+          ["Місце",      "Restaurant Praha · Прага", "🇨🇿"],
+          ["Категорія",  "Подорожі · Ресторани",     "🍽️"],
+          ["Гаманець",   "Monobank · UAH",            "💳"],
+          ["Дата",       "12 листопада, 21:14",       "📅"],
+          ["Статус",     "Очікує підтвердження",      "⏳"],
+        ].map(([k, v, e], i) => (
+          <div key={k} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+            <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: "var(--r-md)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{e}</span>
+            <span className="muted" style={{ fontSize: 12, width: 90 }}>{k}</span>
+            <span style={{ fontSize: 13, flex: 1 }}>{v}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Split widget */}
+      <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Розділено на 3</div>
+      <div style={{ margin: "0 16px 16px", padding: 14, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-2xl)" }}>
+        <div style={{ display: "flex", height: 8, borderRadius: 999, overflow: "hidden", marginBottom: 10 }}>
+          {peers.map(p => (
+            <div key={p[1]} style={{ flex: p[2] / splitTotal, background: p[3] }} />
+          ))}
+        </div>
+        {peers.map((p, i) => (
+          <div key={p[1]} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderTop: i ? "1px solid var(--border)" : "none" }}>
+            <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: 999, background: p[3], color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>{p[0]}</span>
+            <span style={{ flex: 1, fontSize: 13 }}>{p[1]}</span>
+            <span className="tabular muted" style={{ fontSize: 12 }}>{p[4] ? "оплачено" : "очікує"}</span>
+            <span className="tabular" style={{ fontSize: 13, fontWeight: 600, width: 80, textAlign: "right" }}>−{p[2].toLocaleString("uk-UA").replace(/,/g," ")} ₴</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Note */}
+      <div style={{ margin: "0 16px 16px", padding: "12px 14px", background: "var(--brand-soft)", borderRadius: "var(--r-lg)", display: "flex", gap: 10 }}>
+        <span aria-hidden="true" style={{ fontSize: 16 }}>💬</span>
+        <div style={{ flex: 1 }}>
+          <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)" }}>НОТАТКА</div>
+          <div style={{ fontSize: 13, marginTop: 2 }}>Відпустка з друзями. Розділили вечерю на трьох. #подорож #прага</div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div style={{ padding: "0 16px 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <button type="button" className="btn btn-md btn-soft">Так, це я</button>
+        <button type="button" className="btn btn-md btn-danger">Не моя</button>
+      </div>
+      <div style={{ padding: "0 16px", display: "flex", gap: 8 }}>
+        <button type="button" className="btn btn-md btn-secondary" style={{ flex: 1 }}>Редагувати</button>
+        <button type="button" className="btn btn-md btn-secondary" style={{ flex: 1, color: "var(--danger)" }}>Видалити</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Split bill (creating a new split) ---------- */
+function SplitBill() {
+  const total = 1480;
+  const people = [
+    ["А", "Ти",       370, "var(--brand)"],
+    ["О", "Олег",     370, "var(--info)"],
+    ["М", "Марія",    370, "var(--success)"],
+    ["Д", "Дмитро",   370, "var(--warning)"],
+  ];
+  return (
+    <Sheet
+      behind={<TxSheet />}
+      title="Розділити рахунок"
+      leading={<button type="button" className="btn btn-sm btn-ghost">Скасувати</button>}
+      trailing={<button type="button" className="btn btn-sm btn-soft">Готово</button>}
+    >
+      {/* Total */}
+      <div style={{ textAlign: "center", padding: "8px 0 16px" }}>
+        <div className="muted tiny">Сума</div>
+        <div className="font-display tabular" style={{ fontSize: 44, fontWeight: 700, letterSpacing: "-0.03em" }}>1 480,00 <span className="muted" style={{ fontSize: 22, fontWeight: 500 }}>₴</span></div>
+      </div>
+
+      {/* Mode */}
+      <div className="seg" role="radiogroup" aria-label="Спосіб розділу" style={{ width: "100%", marginBottom: 12 }}>
+        <button type="button" role="radio" aria-checked="true" className="seg-item active grow">Порівну</button>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">Сумами</button>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">Відсотками</button>
+      </div>
+
+      {/* Add people row */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, padding: 4, background: "var(--surface-2)", borderRadius: "var(--r-lg)" }}>
+        {people.map(p => (
+          <span key={p[1]} aria-hidden="true" style={{ width: 36, height: 36, borderRadius: 999, background: p[3], color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{p[0]}</span>
+        ))}
+        <button type="button" aria-label="Додати людину" style={{ width: 36, height: 36, borderRadius: 999, background: "var(--surface)", border: "1.5px dashed var(--border-strong)", color: "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <Icons.plus />
+        </button>
+        <span className="muted" style={{ fontSize: 12, marginLeft: 4 }}>{people.length} людини</span>
+      </div>
+
+      {/* Per-person list */}
+      <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", overflow: "hidden", marginBottom: 12 }}>
+        {people.map((p, i) => (
+          <div key={p[1]} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+            <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: 999, background: p[3], color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{p[0]}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{p[1]}</div>
+              <div className="muted tabular" style={{ fontSize: 11 }}>25% від суми</div>
+            </div>
+            <div className="tabular" style={{ fontWeight: 600, fontSize: 14 }}>{p[2].toLocaleString("uk-UA").replace(/,/g," ")} ₴</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: "10px 12px", borderRadius: "var(--r-md)", background: "var(--brand-soft)", color: "var(--brand)", fontSize: 12, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <Icons.check /> Сума зійшлась — 1 480,00 ₴
+      </div>
+    </Sheet>
+  );
+}
+
+/* ---------- Shared budget (with multiple participants) ---------- */
+function SharedBudget() {
+  const members = [
+    ["А", "Анна",  3200, 5000, "var(--brand)"],
+    ["В", "Влад",  4180, 5000, "var(--info)"],
+    ["Д", "Діма",  1820, 3000, "var(--success)"],
+  ];
+  const totalSpent = members.reduce((s, m) => s + m[2], 0);
+  const totalCap   = members.reduce((s, m) => s + m[3], 0);
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)", paddingBottom: 100 }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 8px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="icon-btn" aria-label="Назад" style={{ transform: "rotate(180deg)" }}><Icons.chevR /></button>
+        <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>Спільний бюджет</div>
+        <button type="button" className="icon-btn" aria-label="Налаштування"><Icons.more /></button>
+      </div>
+
+      {/* Hero */}
+      <div style={{ margin: "8px 16px 16px", padding: 20, borderRadius: "var(--r-2xl)", background: "linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%)", color: "white", boxShadow: "var(--sh-brand)", position: "relative", overflow: "hidden" }}>
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2), transparent 50%)" }} />
+        <div style={{ position: "relative" }}>
+          <div style={{ fontSize: 12, opacity: 0.85 }}>Відпустка в Грузії · 3 учасники</div>
+          <div className="font-display tabular" style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", margin: "4px 0 4px" }}>{totalSpent.toLocaleString("uk-UA").replace(/,/g," ")} <span style={{ opacity: 0.7, fontSize: 15, fontWeight: 500 }}>/ {totalCap.toLocaleString("uk-UA").replace(/,/g," ")} ₴</span></div>
+          <div style={{ display: "flex", marginTop: 10, height: 8, borderRadius: 999, overflow: "hidden", background: "rgba(255,255,255,0.2)" }}>
+            {members.map(m => (
+              <div key={m[1]} style={{ width: `${(m[2]/totalCap)*100}%`, background: "rgba(255,255,255,0.85)", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.05)", borderRight: "1px solid rgba(0,0,0,0.06)" }} />
+            ))}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 12, opacity: 0.85 }}>Залишилось {(totalCap - totalSpent).toLocaleString("uk-UA").replace(/,/g," ")} ₴ · до 22 листопада</div>
+        </div>
+      </div>
+
+      {/* Members */}
+      <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Учасники</div>
+      <div style={{ background: "var(--surface)", margin: "0 12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+        {members.map((m, i) => {
+          const pct = Math.round((m[2]/m[3])*100);
+          const fg = pct > 90 ? "var(--danger)" : pct > 75 ? "var(--warning)" : "var(--success)";
+          return (
+            <div key={m[1]} style={{ padding: "12px 14px", borderTop: i ? "1px solid var(--border)" : "none", display: "flex", alignItems: "center", gap: 12 }}>
+              <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: 999, background: m[4], color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{m[0]}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{m[1]}</span>
+                  <span className="tabular" style={{ fontSize: 12, fontWeight: 600, color: fg }}>{pct}%</span>
+                </div>
+                <div style={{ height: 4, background: "var(--surface-3)", borderRadius: 999, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${Math.min(pct, 100)}%`, background: fg }} />
+                </div>
+                <div className="muted tabular" style={{ fontSize: 11, marginTop: 4, display: "flex", justifyContent: "space-between" }}>
+                  <span>{m[2].toLocaleString("uk-UA").replace(/,/g," ")} ₴ витрачено</span>
+                  <span>з {m[3].toLocaleString("uk-UA").replace(/,/g," ")} ₴</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ padding: "0 16px" }}>
+        <button type="button" className="btn btn-md btn-secondary" style={{ width: "100%", marginBottom: 8 }}><Icons.plus /> Запросити учасника</button>
+        <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%" }}>Подивитись операції</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Categories editor ---------- */
+function CategoriesEditor() {
+  const groups = [
+    ["Витрати", [
+      ["food",     "🍔", "Їжа",         "var(--brand)",   "12 000 ₴/міс"],
+      ["transport","🚗", "Транспорт",   "var(--info)",    "3 000 ₴/міс"],
+      ["coffee",   "☕", "Кафе",         "oklch(0.55 0.15 30)", "1 000 ₴/міс"],
+      ["fun",      "🎬", "Розваги",     "var(--warning)", "2 000 ₴/міс"],
+      ["home",     "🏠", "Дім",         "var(--success)", "10 000 ₴/міс"],
+      ["clothes",  "👕", "Одяг",        "var(--danger)",  "2 000 ₴/міс"],
+      ["health",   "💊", "Здоров'я",    "oklch(0.62 0.13 240)", "без ліміту"],
+    ]],
+    ["Доходи", [
+      ["salary",   "💼", "Зарплата",    "var(--success)", "регулярно"],
+      ["freelance","💻", "Фріланс",     "var(--brand)",   ""],
+      ["gifts",    "🎁", "Подарунки",   "oklch(0.7 0.15 340)", ""],
+    ]],
+  ];
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)", paddingBottom: 100 }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 8px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="icon-btn" aria-label="Назад" style={{ transform: "rotate(180deg)" }}><Icons.chevR /></button>
+        <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>Категорії</div>
+        <button type="button" className="btn btn-sm btn-soft"><Icons.plus /> Нова</button>
+      </div>
+
+      {/* Inline edit card showing what selecting a row does */}
+      <div style={{ margin: "8px 16px 16px", padding: 16, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--sh-2)" }}>
+        <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Редагуєш · Їжа</div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
+          <span aria-hidden="true" style={{ width: 56, height: 56, borderRadius: "var(--r-xl)", background: "var(--brand)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, boxShadow: "var(--sh-2)" }}>🍔</span>
+          <input className="input" defaultValue="Їжа" aria-label="Назва категорії" style={{ flex: 1 }} />
+        </div>
+        <div className="muted" style={{ fontSize: 11, marginBottom: 6 }}>Іконка</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 6, marginBottom: 12 }}>
+          {["🍔","🥐","🍕","🥗","🛒","🍎","🥩","🍣"].map((e, i) => (
+            <button key={e} type="button" aria-label={`Іконка ${e}`} aria-pressed={i === 0} style={{ aspectRatio: "1", appearance: "none", background: i === 0 ? "var(--brand-soft)" : "var(--surface-2)", border: i === 0 ? "1.5px solid var(--brand)" : "1px solid var(--border)", borderRadius: "var(--r-md)", fontSize: 22, cursor: "pointer" }}>{e}</button>
+          ))}
+        </div>
+        <div className="muted" style={{ fontSize: 11, marginBottom: 6 }}>Колір</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {["var(--brand)","var(--info)","var(--success)","var(--warning)","var(--danger)","oklch(0.55 0.15 30)","oklch(0.7 0.15 340)","oklch(0.5 0.18 200)"].map((c, i) => (
+            <button key={c} type="button" aria-label={`Колір ${i+1}`} aria-pressed={i === 0} style={{ width: 28, height: 28, borderRadius: 999, background: c, border: i === 0 ? "2.5px solid var(--surface)" : "1px solid var(--border)", boxShadow: i === 0 ? "0 0 0 2px var(--brand)" : "var(--sh-1)", cursor: "pointer" }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Groups */}
+      {groups.map(([label, rows]) => (
+        <div key={label} style={{ marginBottom: 16 }}>
+          <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{label} · {rows.length}</div>
+          <div style={{ background: "var(--surface)", margin: "0 12px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+            {rows.map(([id, icon, name, color, sub], i) => (
+              <div key={id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+                <span aria-hidden="true" className="muted" style={{ cursor: "grab", fontSize: 12, fontFamily: "var(--font-mono)" }}>≡</span>
+                <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{name}</div>
+                  {sub && <div className="muted" style={{ fontSize: 11 }}>{sub}</div>}
+                </div>
+                <button type="button" className="icon-btn" aria-label={`Редагувати ${name}`}><Icons.chevR /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Security: PIN entry ---------- */
+function SecurityPin() {
+  const filled = 3; // 3/4 dots filled
+  const keys = ["1","2","3","4","5","6","7","8","9","face","0","del"];
+  return (
+    <div style={{ height: "100%", background: "var(--bg)", display: "flex", flexDirection: "column", padding: "60px 28px 28px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="btn btn-sm btn-ghost">Скасувати</button>
+        <span className="muted" style={{ fontSize: 12 }}>1/3 спроб залишилось</span>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", gap: 28 }}>
+        <div aria-hidden="true" style={{ width: 64, height: 64, borderRadius: "var(--r-2xl)", background: "var(--brand-soft)", color: "var(--brand)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>🛡️</div>
+        <div>
+          <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 6px" }}>Введи PIN</h1>
+          <p className="muted" style={{ fontSize: 13, margin: 0 }}>Кошик заблоковано після перерви</p>
+        </div>
+
+        <div style={{ display: "flex", gap: 18 }} role="status" aria-label={`${filled} з 4 цифр введено`}>
+          {[0,1,2,3].map(i => (
+            <span key={i} aria-hidden="true" style={{ width: 16, height: 16, borderRadius: 999, background: i < filled ? "var(--brand)" : "transparent", border: i < filled ? "none" : "1.5px solid var(--border-strong)", transition: "background 120ms" }} />
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+        {keys.map(k => {
+          if (k === "face") return (
+            <button key={k} type="button" className="icon-btn" aria-label="Face ID" style={{ height: 64, fontSize: 28 }}>😊</button>
+          );
+          if (k === "del") return (
+            <button key={k} type="button" className="icon-btn" aria-label="Стерти" style={{ height: 64, fontSize: 18 }}>⌫</button>
+          );
+          return (
+            <button key={k} type="button" style={{ height: 64, borderRadius: "var(--r-full)", appearance: "none", background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--sh-1)", fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 500, cursor: "pointer" }}>{k}</button>
+          );
+        })}
+      </div>
+      <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%" }}>Забув PIN?</button>
+    </div>
+  );
+}
+
+/* ---------- Security: Face ID setup ---------- */
+function SecurityFaceID() {
+  return (
+    <div style={{ height: "100%", background: "var(--bg)", display: "flex", flexDirection: "column", padding: "60px 28px 28px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="btn btn-sm btn-ghost">Назад</button>
+        <span className="muted" style={{ fontSize: 12, fontFamily: "var(--font-mono)" }}>2/3</span>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+        {/* Animated face frame */}
+        <div aria-hidden="true" style={{ width: 200, height: 200, position: "relative", marginBottom: 28 }}>
+          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "conic-gradient(var(--brand) 0deg, var(--brand) 280deg, var(--surface-3) 280deg)", padding: 6 }}>
+            <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 84 }}>😊</div>
+          </div>
+          {/* corners */}
+          {[[0,0,"tl"],[1,0,"tr"],[0,1,"bl"],[1,1,"br"]].map(([x,y,k]) => (
+            <div key={k} style={{ position: "absolute", width: 24, height: 24, borderColor: "var(--brand)", borderStyle: "solid", borderWidth: 0, top: y ? "auto" : -4, bottom: y ? -4 : "auto", left: x ? "auto" : -4, right: x ? -4 : "auto", borderTopWidth: y ? 0 : 3, borderBottomWidth: y ? 3 : 0, borderLeftWidth: x ? 0 : 3, borderRightWidth: x ? 3 : 0, borderTopLeftRadius: !x && !y ? 6 : 0, borderTopRightRadius: x && !y ? 6 : 0, borderBottomLeftRadius: !x && y ? 6 : 0, borderBottomRightRadius: x && y ? 6 : 0 }} />
+          ))}
+        </div>
+        <div className="muted" style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.18em", marginBottom: 6 }}>78%</div>
+        <h1 className="font-display" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 6px" }}>Поверни голову повільно</h1>
+        <p className="muted" style={{ fontSize: 14, lineHeight: 1.5, maxWidth: 280, margin: 0 }}>Дивись прямо в камеру. Обличчя має бути в рамці.</p>
+      </div>
+
+      <div>
+        <button type="button" className="btn btn-md btn-ghost" style={{ width: "100%" }}>Налаштувати пізніше</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Report PDF preview ---------- */
+function ReportPreview() {
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "oklch(0.96 0.01 80)", paddingBottom: 110 }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, oklch(0.96 0.01 80) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 8px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="icon-btn" aria-label="Закрити"><Icons.x /></button>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>koshyk_2026-11.pdf</div>
+          <div className="muted tabular" style={{ fontSize: 10 }}>3 сторінки · 124 КБ</div>
+        </div>
+        <button type="button" className="icon-btn" aria-label="Поділитись"><Icons.arrow /></button>
+      </div>
+
+      {/* PDF "page" mock */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "16px 20px" }}>
+        {/* Page 1 */}
+        <div style={{ background: "white", color: "#111", borderRadius: 4, boxShadow: "0 8px 28px rgba(0,0,0,0.12), 0 1px 0 rgba(0,0,0,0.04)", padding: 20, aspectRatio: "0.707" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #e8e8e8" }}>
+            <div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700 }}>Koshyk · Виписка</div>
+              <div style={{ fontSize: 9, color: "#777", marginTop: 2 }}>1 — 14 листопада 2026</div>
+            </div>
+            <div style={{ width: 24, height: 24, borderRadius: 6, background: "var(--brand)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>К</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 14 }}>
+            {[["Доходи","+33 000","#0a8a4a"],["Витрати","−20 800","#111"],["Чистий","+12 200","var(--brand)"]].map(([l,v,c]) => (
+              <div key={l} style={{ padding: 8, background: "#f7f7f5", borderRadius: 4 }}>
+                <div style={{ fontSize: 7, color: "#888", textTransform: "uppercase", letterSpacing: "0.08em" }}>{l}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 700, color: c, marginTop: 2 }}>{v} ₴</div>
+              </div>
+            ))}
+          </div>
+          {/* Mini bar chart */}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 60, marginBottom: 14 }}>
+            {[40,55,30,80,45,90,35,60,25,75,50,42].map((h, i) => (
+              <div key={i} style={{ flex: 1, height: `${h}%`, background: i % 2 === 0 ? "var(--brand)" : "#cdd0e0", borderRadius: "1px 1px 0 0" }} />
+            ))}
+          </div>
+          {/* fake table rows */}
+          {[1,2,3,4,5,6].map(i => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderTop: i > 1 ? "1px solid #eee" : "none", fontSize: 9 }}>
+              <span style={{ width: "40%", height: 6, background: "#eee", borderRadius: 2, alignSelf: "center" }} />
+              <span style={{ width: "20%", height: 6, background: "#eee", borderRadius: 2, alignSelf: "center" }} />
+              <span style={{ width: "16%", height: 6, background: "#222", borderRadius: 2, alignSelf: "center" }} />
+            </div>
+          ))}
+          <div style={{ position: "relative", marginTop: 14, fontSize: 7, color: "#aaa", textAlign: "center" }}>1 / 3</div>
+        </div>
+
+        {/* Page 2 (faded preview) */}
+        <div style={{ background: "white", borderRadius: 4, boxShadow: "0 8px 28px rgba(0,0,0,0.08)", padding: 20, aspectRatio: "0.707", opacity: 0.6, transform: "scale(0.96)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {Array.from({ length: 14 }).map((_, i) => (
+              <div key={i} style={{ display: "flex", gap: 8 }}>
+                <span style={{ width: "30%", height: 6, background: "#eee", borderRadius: 2 }} />
+                <span style={{ width: "40%", height: 6, background: "#f3f3f3", borderRadius: 2 }} />
+                <span style={{ width: "16%", height: 6, background: "#222", borderRadius: 2, marginLeft: "auto" }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom action bar */}
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, background: "color-mix(in oklch, oklch(0.96 0.01 80) 90%, transparent)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--border)", display: "flex", gap: 8 }}>
+        <button type="button" className="btn btn-md btn-secondary" style={{ flex: 1 }}>Поділитись</button>
+        <button type="button" className="btn btn-md btn-primary" style={{ flex: 1 }}>Зберегти</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Search history (initial state of search) ---------- */
+function SearchHistory() {
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)" }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 12px 12px", zIndex: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <span aria-hidden="true" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-subtle)", display: "flex" }}><Icons.search /></span>
+            <input className="input" type="search" placeholder="Знайти операцію, мерчанта, тег…" autoFocus aria-label="Пошук" style={{ paddingLeft: 36 }} />
+          </div>
+          <button type="button" className="btn btn-sm btn-ghost">Скасувати</button>
+        </div>
+      </div>
+
+      {/* Recent searches */}
+      <div className="muted" style={{ padding: "12px 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", display: "flex", justifyContent: "space-between" }}>
+        <span>Нещодавні</span>
+        <button type="button" style={{ appearance: "none", background: "none", border: "none", color: "var(--text-muted)", font: "inherit", cursor: "pointer", padding: 0 }}>Очистити</button>
+      </div>
+      <div style={{ background: "var(--surface)", margin: "0 12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+        {[
+          ["Сільпо",        "32 збіги",   "🕐"],
+          ["Bolt",          "8 збігів",   "🕐"],
+          ["#подорож",      "5 збігів",   "🕐"],
+          ["більше 1000 ₴", "23 збіги",   "🕐"],
+        ].map((r, i) => (
+          <div key={r[0]} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+            <span aria-hidden="true" className="muted" style={{ fontSize: 14 }}>{r[2]}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14 }}>{r[0]}</div>
+              <div className="muted" style={{ fontSize: 11 }}>{r[1]}</div>
+            </div>
+            <button type="button" className="icon-btn" aria-label={`Видалити пошук "${r[0]}"`} style={{ width: 28, height: 28 }}><Icons.x /></button>
+          </div>
+        ))}
+      </div>
+
+      {/* Saved searches */}
+      <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Збережені</div>
+      <div style={{ background: "var(--surface)", margin: "0 12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+        {[
+          ["⭐","Витрати > 1 000 ₴",  "за місяць · усі категорії"],
+          ["⭐","Лише підписки",       "категорія: Підписки · auto"],
+        ].map((r, i) => (
+          <div key={r[1]} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+            <span aria-hidden="true" style={{ fontSize: 18 }}>{r[0]}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{r[1]}</div>
+              <div className="muted" style={{ fontSize: 11 }}>{r[2]}</div>
+            </div>
+            <Icons.chevR style={{ color: "var(--text-subtle)" }} />
+          </div>
+        ))}
+      </div>
+
+      {/* Trending */}
+      <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Часто шукають</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, padding: "0 16px 24px" }}>
+        {["Їжа","Транспорт","Підписки","Зарплата","Кафе","Авто","#подорож","#бізнес"].map(t => (
+          <span key={t} className="chip">{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Recurring rules: list ---------- */
+function RecurringRules() {
+  const rules = [
+    ["📱","Київстар","−180,00","Щомісяця · 14 числа","sub","var(--info)",     "Завтра"],
+    ["🎬","Netflix",  "−299,00","Щомісяця · 5 числа", "sub","oklch(0.5 0.18 25)","за 22 дні"],
+    ["☁️","iCloud",   "−45,00", "Щомісяця · 1 числа", "sub","var(--text-muted)","за 18 днів"],
+    ["💼","Зарплата","+25 000,00","Щомісяця · 1 числа","inc","var(--success)", "за 18 днів"],
+    ["🏋️","Спортзал","−700,00","Раз на квартал · 12.12","sub","var(--warning)","за 28 днів"],
+    ["🚗","Bolt Pass","−149,00","Щотижня · понеділок", "sub","var(--brand)",  "за 4 дні"],
+  ];
+  return (
+    <div style={{ height: "100%", overflow: "auto", background: "var(--bg)", paddingBottom: 100 }}>
+      <div style={{ position: "sticky", top: 0, background: "color-mix(in oklch, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", padding: "10px 8px 12px", zIndex: 5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button type="button" className="icon-btn" aria-label="Назад" style={{ transform: "rotate(180deg)" }}><Icons.chevR /></button>
+        <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>Регулярні</div>
+        <button type="button" className="btn btn-sm btn-soft"><Icons.plus /> Нова</button>
+      </div>
+
+      {/* Total card */}
+      <div style={{ margin: "8px 16px 16px", padding: 16, borderRadius: "var(--r-2xl)", background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <div className="muted" style={{ fontSize: 12 }}>На місяць</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4 }}>
+          <div className="font-display tabular" style={{ fontSize: 24, fontWeight: 700 }}>−1 373,00 ₴ <span className="muted" style={{ fontSize: 13, fontWeight: 500 }}>/ +25 000 ₴</span></div>
+        </div>
+        <div className="muted tabular" style={{ fontSize: 11, marginTop: 2 }}>5 списань · 1 надходження</div>
+      </div>
+
+      {/* Active rules */}
+      <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Активні · {rules.length}</div>
+      <div style={{ background: "var(--surface)", margin: "0 12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden" }}>
+        {rules.map((r, i) => {
+          const isInc = r[4] === "inc";
+          return (
+            <div key={r[1]} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: i ? "1px solid var(--border)" : "none" }}>
+              <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: r[5], color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{r[0]}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{r[1]}</span>
+                  <span className="tabular" style={{ fontSize: 13, fontWeight: 600, color: isInc ? "var(--success)" : "var(--text)" }}>{r[2]} ₴</span>
+                </div>
+                <div className="muted" style={{ fontSize: 11, display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                  <span>{r[3]}</span>
+                  <span>{r[6]}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="muted" style={{ padding: "0 24px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Призупинені · 1</div>
+      <div style={{ background: "var(--surface)", margin: "0 12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", overflow: "hidden", opacity: 0.6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
+          <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📚</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 500 }}>Audible</div>
+            <div className="muted" style={{ fontSize: 11 }}>Призупинено · з 1 жовтня</div>
+          </div>
+          <span className="tabular muted" style={{ fontSize: 13 }}>−229,00 ₴</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Recurring rule: edit ---------- */
+function RecurringEdit() {
+  return (
+    <Sheet
+      behind={<RecurringRules />}
+      title="Редагувати правило"
+      leading={<button type="button" className="btn btn-sm btn-ghost">Скасувати</button>}
+      trailing={<button type="button" className="btn btn-sm btn-soft">Зберегти</button>}
+    >
+      {/* Header */}
+      <div style={{ textAlign: "center", padding: "8px 0 20px" }}>
+        <div aria-hidden="true" style={{ width: 64, height: 64, borderRadius: "var(--r-2xl)", background: "var(--info)", color: "white", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 32, marginBottom: 10 }}>📱</div>
+        <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>Київстар</div>
+        <div className="font-display tabular" style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", marginTop: 6 }}>−180,00 ₴</div>
+      </div>
+
+      {/* Frequency */}
+      <div className="muted" style={{ padding: "0 4px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Частота</div>
+      <div className="seg" role="radiogroup" aria-label="Частота" style={{ width: "100%", marginBottom: 12 }}>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">День</button>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">Тиждень</button>
+        <button type="button" role="radio" aria-checked="true" className="seg-item active grow">Місяць</button>
+        <button type="button" role="radio" aria-checked="false" className="seg-item grow">Рік</button>
+      </div>
+
+      {/* Day chooser */}
+      <div className="muted" style={{ padding: "8px 4px 8px", fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Кожного 14-го числа</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 4, marginBottom: 16 }}>
+        {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+          <button key={d} type="button" aria-pressed={d === 14} style={{ aspectRatio: "1", appearance: "none", background: d === 14 ? "var(--brand)" : "var(--surface-2)", color: d === 14 ? "var(--on-brand)" : "var(--text)", border: "none", borderRadius: "var(--r-sm)", fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: d === 14 ? 700 : 500, cursor: "pointer" }}>{d}</button>
+        ))}
+      </div>
+
+      {/* Options */}
+      <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", overflow: "hidden", marginBottom: 16 }}>
+        {[
+          ["Автоматично записувати","Без підтвердження", true],
+          ["Сповіщення за день",     "Push о 19:00",      true],
+          ["Збільшити бюджет «Звʼязок»","коли витрачено", false],
+          ["Закінчується",           "Без дати",           false],
+        ].map((row, i) => (
+          <div key={row[0]} style={{ display: "flex", alignItems: "center", padding: "14px 16px", borderTop: i ? "1px solid var(--border)" : "none", gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{row[0]}</div>
+              <div className="muted" style={{ fontSize: 11 }}>{row[1]}</div>
+            </div>
+            <div className={`sw ${row[2] ? "on" : ""}`} role="switch" aria-checked={row[2]} aria-label={row[0]}><div className="thumb" /></div>
+          </div>
+        ))}
+      </div>
+
+      <button type="button" className="btn btn-md btn-secondary" style={{ width: "100%", color: "var(--danger)" }}>Видалити правило</button>
+    </Sheet>
+  );
+}
+
 /* ---------- Wrap into iOS frames + DC ---------- */
 function AppScreens() {
   const screens = [
     ["dashboard", "Огляд", <Dashboard />],
     ["transactions", "Операції (списком)", <Transactions />],
+    ["search-history", "Пошук · історія", <SearchHistory />],
     ["tx-search", "Операції · пошук", <TransactionsSearch />],
+    ["tx-detail", "Операція · з push'у", <TxDetail />],
     ["txsheet", "Додавання операції", <TxSheet />],
+    ["split-bill", "Розділити рахунок", <SplitBill />],
     ["budgets", "Бюджети", <Budgets />],
+    ["shared-budget", "Бюджет · спільний", <SharedBudget />],
     ["goals", "Цілі", <Goals />],
     ["stats", "Аналітика · графіки", <Stats />],
+    ["recurring", "Регулярні · правила", <RecurringRules />],
+    ["recurring-edit", "Регулярне · редагування", <RecurringEdit />],
+    ["categories", "Категорії · редактор", <CategoriesEditor />],
+    ["security-pin", "Безпека · PIN", <SecurityPin />],
+    ["security-face", "Безпека · Face ID", <SecurityFaceID />],
+    ["report-pdf", "Звіт · PDF preview", <ReportPreview />],
     ["settings", "Налаштування · профіль", <Settings />],
     ["op-success", "Підтвердження · успіх", <OpSuccess />],
     ["op-error", "Підтвердження · помилка", <OpError />],
